@@ -6,14 +6,14 @@ using UnityEngine;
 public class DungeonCreator : MonoBehaviour
 {
     public int dungeonWidth, dungeonLength, roomWidthMin, roomLengthMin, maxIterations, corridorWidth;
-    public Material material;
+    public Material roomMat, startRoomMat, endRoomMat;
     [Range(0.0f, 0.3f)]
     public float roomBottomCornerModifier;
     [Range(0.7f, 1.0f)]
     public float roomTopCornerMidifier;
     [Range(0, 2)]
     public int roomOffset;
-    public GameObject wallVertical, wallHorizontal;
+    public GameObject player, wallVertical, wallHorizontal;
     List<Vector3Int> possibleDoorVerticalPosition;
     List<Vector3Int> possibleDoorHorizontalPosition;
     List<Vector3Int> possibleWallHorizontalPosition;
@@ -41,7 +41,12 @@ public class DungeonCreator : MonoBehaviour
 
         for (int i = 0; i < listOfRooms.Count; i++)
         {
-            CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner);
+            if (i == 0)
+                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, startRoomMat, true);
+            else if (i == listOfRooms.Count / 2)
+                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, endRoomMat);
+            else
+                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat);
         }
 
         //CreateWalls(wallParent);
@@ -64,7 +69,7 @@ public class DungeonCreator : MonoBehaviour
         Instantiate(wallPrefab, wallPosition, Quaternion.identity, wallParent.transform);
     }
 
-    private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner)
+    private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner, Material myMat, bool spawnRoom = false)
     {
         Vector3 bottomLeftV = new Vector3(bottomLeftCorner.x, 0, bottomLeftCorner.y);
         Vector3 bottomRightV = new Vector3(topRightCorner.x, 0, bottomLeftCorner.y);
@@ -104,8 +109,12 @@ public class DungeonCreator : MonoBehaviour
         dungeonFloor.transform.position = Vector3.zero;
         dungeonFloor.transform.localScale = Vector3.one;
         dungeonFloor.GetComponent<MeshFilter>().mesh = mesh;
-        dungeonFloor.GetComponent<MeshRenderer>().material = material;
+        dungeonFloor.GetComponent<MeshRenderer>().material = myMat;
         dungeonFloor.transform.parent = transform;
+        dungeonFloor.AddComponent<BoxCollider>();
+
+        if (spawnRoom)
+            Instantiate(player, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f, bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2), Quaternion.identity);
 
         /*for (int row = (int)bottomLeftV.x; row < (int)bottomRightV.x; row++)
         {

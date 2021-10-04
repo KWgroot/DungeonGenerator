@@ -105,7 +105,8 @@
 -define:ENABLE_TERRAIN
 -define:ENABLE_TILEMAP
 -define:ENABLE_TIMELINE
--define:ENABLE_LEGACY_INPUT_MANAGER
+-define:ENABLE_INPUT_SYSTEM
+-define:STARTER_ASSETS_PACKAGES_CHECKED
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -r:"C:/Program Files/Unity/Hub/Editor/2021.1.19f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
@@ -301,7 +302,11 @@
 -r:"C:/Program Files/Unity/Hub/Editor/2021.1.19f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Runtime.Serialization.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2021.1.19f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Xml.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2021.1.19f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Xml.Linq.dll"
+-r:"N:/Unity Projects/DungeonGame/DungeonGenerator/Library/PackageCache/com.unity.cinemachine@2.7.8/Runtime/ThirdParty/clipper_library.dll"
 -r:"N:/Unity Projects/DungeonGame/DungeonGenerator/Library/PackageCache/com.unity.visualscripting@1.6.1/Runtime/VisualScripting.Flow/Dependencies/NCalc/Unity.VisualScripting.Antlr3.Runtime.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/Cinemachine.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/com.unity.cinemachine.editor.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/Unity.InputSystem.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.Mathematics.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.Mathematics.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.PlasticSCM.Editor.ref.dll"
@@ -342,6 +347,15 @@
 "Assets/Scripts/RoomNode.cs"
 "Assets/Scripts/SimpleCameraController.cs"
 "Assets/Scripts/StructureHelper.cs"
+"Assets/StarterAssets/InputSystem/StarterAssetsInputs.cs"
+"Assets/StarterAssets/Mobile/Scripts/CanvasInputs/UICanvasControllerInput.cs"
+"Assets/StarterAssets/Mobile/Scripts/Utilities/MobileDisableAutoSwitchControls.cs"
+"Assets/StarterAssets/Mobile/Scripts/VirtualInputs/UIVirtualButton.cs"
+"Assets/StarterAssets/Mobile/Scripts/VirtualInputs/UIVirtualJoystick.cs"
+"Assets/StarterAssets/Mobile/Scripts/VirtualInputs/UIVirtualTouchZone.cs"
+"Assets/StarterAssets/ThirdPersonController/Scripts/BasicRigidBodyPush.cs"
+"Assets/StarterAssets/ThirdPersonController/Scripts/ThirdPersonController.cs"
+"Assets/StarterAssets/TutorialInfo/Scripts/Readme.cs"
 -langversion:8.0
 
 /deterministic
