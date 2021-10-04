@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEngine;
-
+﻿using UnityEngine;
 public class Line
 {
     Orientation orientation;
@@ -8,16 +6,16 @@ public class Line
 
     public Line(Orientation orientation, Vector2Int coordinates)
     {
-        this.Orientation = orientation;
-        this.Coordinates = coordinates;
+        this.orientation = orientation;
+        this.coordinates = coordinates;
     }
 
     public Orientation Orientation { get => orientation; set => orientation = value; }
     public Vector2Int Coordinates { get => coordinates; set => coordinates = value; }
 }
 
-public enum Orientation : int
+public enum Orientation
 {
-    Horizontal,
-    Vertical
+    Horizontal = 0,
+    Vertical = 1
 }

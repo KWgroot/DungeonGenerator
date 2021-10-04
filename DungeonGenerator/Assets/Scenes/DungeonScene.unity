@@ -168,14 +168,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dungeonWidth: 100
   dungeonLength: 100
-  roomWidthMin: 20
-  roomLengthMin: 20
-  maxIterations: 10
+  roomWidthMin: 10
+  roomLengthMin: 10
+  maxIterations: 30
   corridorWidth: 2
-  roomBottomCornerModifier: 0.1
-  roomTopCornerModifier: 0.9
-  roomOffset: 0
   material: {fileID: 2100000, guid: 1b18e8b3dc0e5824986af02f9429c1b8, type: 2}
+  roomBottomCornerModifier: 0.1
+  roomTopCornerMidifier: 0.9
+  roomOffset: 1
+  wallVertical: {fileID: 0}
+  wallHorizontal: {fileID: 0}
 --- !u!1 &653260035
 GameObject:
   m_ObjectHideFlags: 0

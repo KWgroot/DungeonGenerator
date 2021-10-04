@@ -15,24 +15,23 @@ public class RoomGenerator
         this.roomWidthMin = roomWidthMin;
     }
 
-    public List<RoomNode> GenerateRoomsInGivenSpaces(List<Node> roomSpaces, float roomBottomCornerModifier, float roomTopCornerModifier, int roomOffset)
+    public List<RoomNode> GenerateRoomsInGivenSpaces(List<Node> roomSpaces, float roomBottomCornerModifier, float roomTopCornerMidifier, int roomOffset)
     {
         List<RoomNode> listToReturn = new List<RoomNode>();
-
         foreach (Node space in roomSpaces)
         {
-            Vector2Int newBottomLeftPoint = StructureHelper.GenerateBottomLeftCornerBetween(space.BottomLeftAreaCorner, space.TopRightAreaCorner, roomBottomCornerModifier, roomOffset);
+            Vector2Int newBottomLeftPoint = StructureHelper.GenerateBottomLeftCornerBetween(
+                space.BottomLeftAreaCorner, space.TopRightAreaCorner, roomBottomCornerModifier, roomOffset);
 
-            Vector2Int newTopRightPoint = StructureHelper.GenerateTopRightCornerBetween(space.BottomLeftAreaCorner, space.TopRightAreaCorner, roomTopCornerModifier, roomOffset);
+            Vector2Int newTopRightPoint = StructureHelper.GenerateTopRightCornerBetween(
+                space.BottomLeftAreaCorner, space.TopRightAreaCorner, roomTopCornerMidifier, roomOffset);
 
             space.BottomLeftAreaCorner = newBottomLeftPoint;
             space.TopRightAreaCorner = newTopRightPoint;
             space.BottomRightAreaCorner = new Vector2Int(newTopRightPoint.x, newBottomLeftPoint.y);
             space.TopLeftAreaCorner = new Vector2Int(newBottomLeftPoint.x, newTopRightPoint.y);
-
             listToReturn.Add((RoomNode)space);
         }
-
         return listToReturn;
     }
 }
