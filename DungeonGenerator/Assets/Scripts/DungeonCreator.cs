@@ -6,7 +6,7 @@ using UnityEngine;
 public class DungeonCreator : MonoBehaviour
 {
     public int dungeonWidth, dungeonLength, roomWidthMin, roomLengthMin, maxIterations, corridorWidth;
-    public Material roomMat, startRoomMat, endRoomMat;
+    public Material roomMat, startRoomMat, endRoomMat, wallMat;
     [Range(0.0f, 0.3f)]
     public float roomBottomCornerModifier;
     [Range(0.7f, 1.0f)]
@@ -27,17 +27,19 @@ public class DungeonCreator : MonoBehaviour
 
     public void CreateDungeon()
     {
-        //DestroyAllChildren();
+        DestroyAllChildren();
         DungeonGenerator generator = new DungeonGenerator(dungeonWidth, dungeonLength);
         List<Node> listOfRooms = generator.CalculateDungeon(maxIterations, roomWidthMin, roomLengthMin, roomBottomCornerModifier,
             roomTopCornerMidifier, roomOffset, corridorWidth);
 
-        /*GameObject wallParent = new GameObject("WallParent");
+        GameObject wallParent = new GameObject("WallParent");
         wallParent.transform.parent = transform;
+        wallParent.AddComponent<MeshFilter>();
+        wallParent.AddComponent<MeshRenderer>();
         possibleDoorVerticalPosition = new List<Vector3Int>();
         possibleDoorHorizontalPosition = new List<Vector3Int>();
         possibleWallHorizontalPosition = new List<Vector3Int>();
-        possibleWallVerticalPosition = new List<Vector3Int>();*/
+        possibleWallVerticalPosition = new List<Vector3Int>();
 
         for (int i = 0; i < listOfRooms.Count; i++)
         {
@@ -49,7 +51,35 @@ public class DungeonCreator : MonoBehaviour
                 CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat);
         }
 
-        //CreateWalls(wallParent);
+        CreateWalls(wallParent);
+
+        // combine wall meshes
+        CombineWallMeshes(wallParent);
+    }
+
+    private void CombineWallMeshes(GameObject wallCollection)
+    {
+        Vector3 position = wallCollection.transform.position;
+        wallCollection.transform.position = Vector3.zero;
+
+        MeshFilter[] meshFilters = wallCollection.GetComponentsInChildren<MeshFilter>();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        for (int i = 1; i < meshFilters.Length; i++)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+        }
+
+        wallCollection.transform.GetComponent<MeshFilter>().mesh = new Mesh();
+        wallCollection.transform.GetComponent<MeshFilter>().mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        wallCollection.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
+        wallCollection.GetComponent<Renderer>().material = wallMat;
+        wallCollection.transform.gameObject.SetActive(true);
+
+        wallCollection.transform.position = position;
+
+        wallCollection.AddComponent<MeshCollider>();
     }
 
     private void CreateWalls(GameObject wallParent)
@@ -114,9 +144,13 @@ public class DungeonCreator : MonoBehaviour
         dungeonFloor.AddComponent<BoxCollider>();
 
         if (spawnRoom)
-            Instantiate(player, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f, bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2), Quaternion.identity);
+            Instantiate(player, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f,
+                bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2), Quaternion.identity);
+        /*else if (spawnRoom && GameObject.FindGameObjectWithTag("Player") != null)
+            GameObject.FindGameObjectWithTag("Player").transform.position = new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f,
+                bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2);*/
 
-        /*for (int row = (int)bottomLeftV.x; row < (int)bottomRightV.x; row++)
+        for (int row = (int)bottomLeftV.x; row < (int)bottomRightV.x; row++)
         {
             Vector3 wallPosition = new Vector3(row, 0, bottomLeftV.z);
             AddWallPositionToList(wallPosition, possibleWallHorizontalPosition, possibleDoorHorizontalPosition);
@@ -135,12 +169,12 @@ public class DungeonCreator : MonoBehaviour
         {
             Vector3 wallPosition = new Vector3(bottomRightV.x, 0, col);
             AddWallPositionToList(wallPosition, possibleWallVerticalPosition, possibleDoorVerticalPosition);
-        }*/
+        }
     }
 
-    private void AddWallPositionToList(Vector3 wallPosition, List<Vector3Int> wallList, List<Vector3Int> doorList)
+    private void AddWallPositionToList(Vector3 wallStart, List<Vector3Int> wallList, List<Vector3Int> doorList)
     {
-        Vector3Int point = Vector3Int.CeilToInt(wallPosition);
+        Vector3Int point = Vector3Int.CeilToInt(wallStart);
         if (wallList.Contains(point))
         {
             doorList.Add(point);
@@ -154,6 +188,9 @@ public class DungeonCreator : MonoBehaviour
 
     private void DestroyAllChildren()
     {
+        if (GameObject.FindGameObjectWithTag("Player") != null)
+            DestroyImmediate(GameObject.FindGameObjectWithTag("Player").transform.gameObject);
+
         while (transform.childCount != 0)
         {
             foreach (Transform item in transform)
