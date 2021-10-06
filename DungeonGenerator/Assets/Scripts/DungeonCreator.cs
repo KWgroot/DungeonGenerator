@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DungeonCreator : MonoBehaviour
@@ -76,10 +77,10 @@ public class DungeonCreator : MonoBehaviour
         wallCollection.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
         wallCollection.GetComponent<Renderer>().material = wallMat;
         wallCollection.transform.gameObject.SetActive(true);
-
+        wallCollection.gameObject.isStatic = true;
+        wallCollection.GetComponent<MeshFilter>().mesh.RecalculateNormals();
         wallCollection.transform.position = position;
-
-        wallCollection.AddComponent<MeshCollider>();
+        //wallCollection.AddComponent<MeshCollider>();
     }
 
     private void CreateWalls(GameObject wallParent)
@@ -134,14 +135,28 @@ public class DungeonCreator : MonoBehaviour
         mesh.uv = uvs;
         mesh.triangles = triangles;
 
-        GameObject dungeonFloor = new GameObject("Mesh" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
+        GameObject dungeonFloor = new GameObject("Floor" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
+        GameObject dungeonCeiling = new GameObject("Ceiling" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
 
         dungeonFloor.transform.position = Vector3.zero;
         dungeonFloor.transform.localScale = Vector3.one;
         dungeonFloor.GetComponent<MeshFilter>().mesh = mesh;
         dungeonFloor.GetComponent<MeshRenderer>().material = myMat;
+        dungeonFloor.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         dungeonFloor.transform.parent = transform;
         dungeonFloor.AddComponent<BoxCollider>();
+        dungeonFloor.layer = 3;
+        dungeonFloor.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+
+        dungeonCeiling.transform.position = Vector3.zero;
+        dungeonCeiling.transform.localScale = Vector3.one;
+        dungeonCeiling.GetComponent<MeshFilter>().mesh = mesh;
+        dungeonCeiling.GetComponent<MeshFilter>().mesh.triangles = dungeonCeiling.GetComponent<MeshFilter>().mesh.triangles.Reverse().ToArray();
+        dungeonCeiling.GetComponent<MeshRenderer>().material = roomMat;
+        dungeonCeiling.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        dungeonCeiling.transform.parent = transform;
+        dungeonCeiling.transform.Translate(0f, 3f, 0f);
+        dungeonCeiling.GetComponent<MeshFilter>().mesh.RecalculateNormals();
 
         if (spawnRoom)
             Instantiate(player, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f,
