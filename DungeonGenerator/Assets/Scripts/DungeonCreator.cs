@@ -155,7 +155,7 @@ public class DungeonCreator : MonoBehaviour
         dungeonCeiling.GetComponent<MeshRenderer>().material = roomMat;
         dungeonCeiling.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         dungeonCeiling.transform.parent = transform;
-        dungeonCeiling.transform.Translate(0f, 3f, 0f);
+        dungeonCeiling.transform.Translate(0f, 4f, 0f);
         dungeonCeiling.GetComponent<MeshFilter>().mesh.RecalculateNormals();
 
         if (spawnRoom)
