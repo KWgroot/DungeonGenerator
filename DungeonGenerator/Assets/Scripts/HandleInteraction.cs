@@ -13,7 +13,7 @@ public class HandleInteraction : MonoBehaviour
     private bool inRange = false, interacting;
     private new Camera camera;
     private int layerMask = 1 << 6;
-    private Vector3 previousMousePos;
+    private Vector3 previousMousePos, previousPoint;
 
     // Start is called before the first frame update
     void Start()
@@ -36,12 +36,12 @@ public class HandleInteraction : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, raycastDistance, layerMask))
             {
-                if (hit.transform.name != "Segment")
+                if (hit.transform.name != "Segment" && previousPoint != Vector3.zero)
                 {
-                    Vector3 bottomLeftV = new Vector3(hit.point.x - segmentLength, hit.point.y, hit.point.z + dungeonVariables.corridorWidth / 2);
-                    Vector3 bottomRightV = new Vector3(hit.point.x - segmentLength, hit.point.y, hit.point.z - dungeonVariables.corridorWidth / 2);
-                    Vector3 topLeftV = new Vector3(hit.point.x + segmentLength, hit.point.y, hit.point.z + dungeonVariables.corridorWidth / 2);
-                    Vector3 topRightV = new Vector3(hit.point.x + segmentLength, hit.point.y, hit.point.z - dungeonVariables.corridorWidth / 2);
+                    Vector3 bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                    Vector3 bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                    Vector3 topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                    Vector3 topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
 
                     Vector3[] vertices = new Vector3[]
                     {
@@ -84,6 +84,8 @@ public class HandleInteraction : MonoBehaviour
                     bridgeSegment.GetComponent<MeshFilter>().mesh.RecalculateNormals();
                 }
 
+                previousPoint = hit.point;
+
                 // get the point position, create a mesh the width of a corridor
                 // what should length of each mesh be? Too long and it's not painting, too short and we make too many
                 // place mesh as child of bridge object
@@ -93,6 +95,8 @@ public class HandleInteraction : MonoBehaviour
                 // IN THEORY this should do it... I think... idk that's for tomorrow Koen to figure out I guess.
             }
         }
+        else if (Input.GetMouseButtonUp(0))
+            previousPoint = Vector3.zero;
 
         previousMousePos = Input.mousePosition;
     }
@@ -129,6 +133,7 @@ public class HandleInteraction : MonoBehaviour
             GetComponent<SphereCollider>().enabled = true;
 
             CombineMeshes(transform.GetChild(3).gameObject);
+            previousPoint = Vector3.zero;
         }
     }
 
