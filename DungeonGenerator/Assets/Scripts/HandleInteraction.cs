@@ -38,10 +38,25 @@ public class HandleInteraction : MonoBehaviour
             {
                 if (hit.transform.name != "Segment" && previousPoint != Vector3.zero)
                 {
-                    Vector3 bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                    Vector3 bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
-                    Vector3 topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                    Vector3 topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                    Vector3 bottomLeftV;
+                    Vector3 bottomRightV;
+                    Vector3 topLeftV;
+                    Vector3 topRightV;
+
+                    if ((hit.point.x - previousPoint.x) < 0) // right to left
+                    {
+                        bottomLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                        bottomRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                        topLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                        topRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                    }
+                    else // left to right
+                    {
+                        bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                        bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                        topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                        topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                    }                    
 
                     Vector3[] vertices = new Vector3[]
                     {
@@ -156,9 +171,9 @@ public class HandleInteraction : MonoBehaviour
         bridge.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
         bridge.GetComponent<Renderer>().material = bridgeMat;
         bridge.transform.gameObject.SetActive(true);
-        bridge.gameObject.isStatic = true;
-        bridge.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        bridge.gameObject.isStatic = true;        
         bridge.transform.position = position;
+        bridge.GetComponent<MeshFilter>().mesh.RecalculateNormals();
         bridge.AddComponent<MeshCollider>();
     }
 
