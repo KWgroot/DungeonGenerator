@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -5,9 +6,9 @@ using UnityEngine;
 
 public class HandleInteraction : MonoBehaviour
 {
-    public TextMeshProUGUI text;
+    private TextMeshProUGUI text;
     public float raycastDistance, segmentLength;
-    public DungeonCreator dungeonVariables;
+    private DungeonCreator dungeonVariables;
     public Material bridgeMat;
 
     private bool inRange = false, interacting;
@@ -18,7 +19,9 @@ public class HandleInteraction : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        camera = transform.GetChild(2).GetComponent<Camera>();
+        camera = transform.GetChild(0).GetComponent<Camera>();
+        dungeonVariables = GameObject.FindGameObjectWithTag("Dungeon Creator").GetComponent<DungeonCreator>();
+        text = GameObject.FindGameObjectWithTag("UIText").GetComponent<TextMeshProUGUI>();
     }
 
     // Update is called once per frame
@@ -93,7 +96,7 @@ public class HandleInteraction : MonoBehaviour
                     bridgeSegment.transform.localScale = Vector3.one;
                     bridgeSegment.GetComponent<MeshFilter>().mesh = mesh;
                     bridgeSegment.GetComponent<MeshRenderer>().material = bridgeMat;
-                    bridgeSegment.transform.parent = transform.GetChild(3).transform;
+                    bridgeSegment.transform.parent = transform.GetChild(1).transform;
                     bridgeSegment.layer = 6;
                     bridgeSegment.AddComponent<BoxCollider>();
                     bridgeSegment.GetComponent<MeshFilter>().mesh.RecalculateNormals();
@@ -126,17 +129,18 @@ public class HandleInteraction : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             GetComponent<BoxCollider>().enabled = true;
             GetComponent<SphereCollider>().enabled = false;
+            GameObject.FindGameObjectWithTag("Player").transform.GetChild(2).GetComponent<ThirdPersonController>().enabled = false;
 
-            while (transform.GetChild(3).childCount != 0)
+            while (transform.GetChild(1).childCount != 0)
             {
-                foreach (Transform item in transform.GetChild(3))
+                foreach (Transform item in transform.GetChild(1))
                 {
                     DestroyImmediate(item.gameObject);
                 }
             }
 
-            transform.GetChild(3).GetComponent<MeshFilter>().mesh.Clear();
-            DestroyImmediate(transform.GetChild(3).GetComponent<MeshCollider>());
+            transform.GetChild(1).GetComponent<MeshFilter>().mesh.Clear();
+            DestroyImmediate(transform.GetChild(1).GetComponent<MeshCollider>());
         }
         else
         {
@@ -146,8 +150,9 @@ public class HandleInteraction : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             GetComponent<BoxCollider>().enabled = false;
             GetComponent<SphereCollider>().enabled = true;
+            GameObject.FindGameObjectWithTag("Player").transform.GetChild(2).GetComponent<ThirdPersonController>().enabled = true;
 
-            CombineMeshes(transform.GetChild(3).gameObject);
+            CombineMeshes(transform.GetChild(1).gameObject);
             previousPoint = Vector3.zero;
         }
     }

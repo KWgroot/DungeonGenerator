@@ -25,15 +25,19 @@ public class CorridorNode : Node
         {
             case RelativePosition.Up:
                 ProcessRoomInRelationUpOrDown(this.structure1, this.structure2);
+                this.Direction = Direction.Vertical;
                 break;
             case RelativePosition.Down:
                 ProcessRoomInRelationUpOrDown(this.structure2, this.structure1);
+                this.Direction = Direction.Vertical;
                 break;
             case RelativePosition.Right:
                 ProcessRoomInRelationRightOrLeft(this.structure1, this.structure2);
+                this.Direction = Direction.Horizontal;
                 break;
             case RelativePosition.Left:
                 ProcessRoomInRelationRightOrLeft(this.structure2, this.structure1);
+                this.Direction = Direction.Horizontal;
                 break;
             default:
                 break;

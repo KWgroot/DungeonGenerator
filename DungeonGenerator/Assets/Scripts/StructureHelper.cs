@@ -78,3 +78,9 @@ public enum RelativePosition
     Right,
     Left
 }
+
+public enum Direction
+{
+    Horizontal,
+    Vertical
+}

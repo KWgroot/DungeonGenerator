@@ -6,6 +6,8 @@ TagManager:
   tags:
   - CinemachineTarget
   - Directional Light
+  - Dungeon Creator
+  - UIText
   layers:
   - Default
   - TransparentFX

@@ -14,7 +14,9 @@ public class DungeonCreator : MonoBehaviour
     public float roomTopCornerMidifier;
     [Range(0, 2)]
     public int roomOffset;
-    public GameObject player, wallVertical, wallHorizontal;
+    [Range(1, 20)]
+    public int amountOfDrawRooms;
+    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical;
     List<Vector3Int> possibleDoorVerticalPosition;
     List<Vector3Int> possibleDoorHorizontalPosition;
     List<Vector3Int> possibleWallHorizontalPosition;
@@ -48,6 +50,20 @@ public class DungeonCreator : MonoBehaviour
                 CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, startRoomMat, true);
             else if (i == listOfRooms.Count / 2)
                 CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, endRoomMat);
+            else if (i > listOfRooms.Count / 2 && (i % amountOfDrawRooms) == 0) // Working on corridor
+            {
+                if (listOfRooms[i].Direction == Direction.Horizontal) // Horizontal corridor
+                {
+                    CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat, false, true);
+                    Instantiate(drawAreaHorizontal, new Vector3(listOfRooms[i].BottomLeftAreaCorner.x + (listOfRooms[i].TopRightAreaCorner.x - listOfRooms[i].BottomLeftAreaCorner.x) / 2,
+                        0, listOfRooms[i].BottomLeftAreaCorner.y + (listOfRooms[i].TopRightAreaCorner.y - listOfRooms[i].BottomLeftAreaCorner.y) / 2), Quaternion.identity);
+                }
+                else if (listOfRooms[i].Direction == Direction.Vertical) // Vertical corridor
+                {
+                    CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat, false, true);
+                    Debug.Log("Vertical");
+                }
+            }
             else
                 CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat);
         }
@@ -100,7 +116,7 @@ public class DungeonCreator : MonoBehaviour
         Instantiate(wallPrefab, wallPosition, Quaternion.identity, wallParent.transform);
     }
 
-    private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner, Material myMat, bool spawnRoom = false)
+    private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner, Material myMat, bool spawnRoom = false, bool removeCorridor = false)
     {
         Vector3 bottomLeftV = new Vector3(bottomLeftCorner.x, 0, bottomLeftCorner.y);
         Vector3 bottomRightV = new Vector3(topRightCorner.x, 0, bottomLeftCorner.y);
@@ -135,18 +151,21 @@ public class DungeonCreator : MonoBehaviour
         mesh.uv = uvs;
         mesh.triangles = triangles;
 
-        GameObject dungeonFloor = new GameObject("Floor" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
         GameObject dungeonCeiling = new GameObject("Ceiling" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
 
-        dungeonFloor.transform.position = Vector3.zero;
-        dungeonFloor.transform.localScale = Vector3.one;
-        dungeonFloor.GetComponent<MeshFilter>().mesh = mesh;
-        dungeonFloor.GetComponent<MeshRenderer>().material = myMat;
-        dungeonFloor.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        dungeonFloor.transform.parent = transform;
-        dungeonFloor.AddComponent<BoxCollider>();
-        dungeonFloor.layer = 3;
-        dungeonFloor.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        if (!removeCorridor)
+        {
+            GameObject dungeonFloor = new GameObject("Floor" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
+            dungeonFloor.transform.position = Vector3.zero;
+            dungeonFloor.transform.localScale = Vector3.one;
+            dungeonFloor.GetComponent<MeshFilter>().mesh = mesh;
+            dungeonFloor.GetComponent<MeshRenderer>().material = myMat;
+            dungeonFloor.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            dungeonFloor.transform.parent = transform;
+            dungeonFloor.AddComponent<BoxCollider>();
+            dungeonFloor.layer = 3;
+            dungeonFloor.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        }
 
         dungeonCeiling.transform.position = Vector3.zero;
         dungeonCeiling.transform.localScale = Vector3.one;
