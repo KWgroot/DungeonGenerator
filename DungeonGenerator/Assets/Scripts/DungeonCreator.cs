@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DungeonCreator : MonoBehaviour
 {
-    public int dungeonWidth, dungeonLength, roomWidthMin, roomLengthMin, maxIterations, corridorWidth;
+    public int dungeonWidth, dungeonLength, roomWidthMin, roomLengthMin, maxIterations, corridorWidth, ceilingHeight, torchFrequency;
     public Material roomMat, startRoomMat, endRoomMat, wallMat;
     [Range(0.0f, 0.3f)]
     public float roomBottomCornerModifier;
@@ -16,11 +16,13 @@ public class DungeonCreator : MonoBehaviour
     public int roomOffset;
     [Range(1, 20)]
     public int amountOfDrawRooms;
-    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical;
+    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical, testCube;
     List<Vector3Int> possibleDoorVerticalPosition;
     List<Vector3Int> possibleDoorHorizontalPosition;
     List<Vector3Int> possibleWallHorizontalPosition;
     List<Vector3Int> possibleWallVerticalPosition;
+    List<Vector3> possibleTorchHorizontalPosition;
+    List<Vector3> possibleTorchVerticalPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -43,6 +45,8 @@ public class DungeonCreator : MonoBehaviour
         possibleDoorHorizontalPosition = new List<Vector3Int>();
         possibleWallHorizontalPosition = new List<Vector3Int>();
         possibleWallVerticalPosition = new List<Vector3Int>();
+        possibleTorchHorizontalPosition = new List<Vector3>();
+        possibleTorchVerticalPosition = new List<Vector3>();
 
         for (int i = 0; i < listOfRooms.Count; i++)
         {
@@ -119,11 +123,25 @@ public class DungeonCreator : MonoBehaviour
         {
             CreateWall(wallParent, wallPosition, wallVertical);
         }
+
+        foreach (Vector3 torchPosition in possibleTorchHorizontalPosition)
+        {
+            CreateTorch(torchPosition, testCube);
+        }
+        foreach (Vector3 torchPosition in possibleTorchVerticalPosition)
+        {
+            CreateTorch(torchPosition, testCube);
+        }
     }
 
     private void CreateWall(GameObject wallParent, Vector3Int wallPosition, GameObject wallPrefab)
     {
         Instantiate(wallPrefab, wallPosition, Quaternion.identity, wallParent.transform);
+    }
+
+    private void CreateTorch(Vector3 torchPosition, GameObject torchPrefab)
+    {
+        Instantiate(torchPrefab, torchPosition, Quaternion.identity, transform);
     }
 
     private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner, Material myMat, bool spawnRoom = false, bool removeCorridor = false)
@@ -184,7 +202,7 @@ public class DungeonCreator : MonoBehaviour
         dungeonCeiling.GetComponent<MeshRenderer>().material = roomMat;
         dungeonCeiling.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         dungeonCeiling.transform.parent = transform;
-        dungeonCeiling.transform.Translate(0f, 4f, 0f);
+        dungeonCeiling.transform.Translate(0f, ceilingHeight, 0f);
         dungeonCeiling.GetComponent<MeshFilter>().mesh.RecalculateNormals();
 
         if (spawnRoom)
@@ -194,39 +212,115 @@ public class DungeonCreator : MonoBehaviour
             GameObject.FindGameObjectWithTag("Player").transform.position = new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f,
                 bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2);*/
 
+        //float increment = (float)Math.Round((bottomRightV.x - bottomLeftV.x / torchFrequency) * 2f, MidpointRounding.AwayFromZero) / 2f;
+        bool hasTorch = false;
+        int increment = (int)Math.Ceiling((bottomRightV.x - bottomLeftV.x) / torchFrequency);
+        int index = 1;
+
         for (int row = (int)bottomLeftV.x; row < (int)bottomRightV.x; row++)
         {
             Vector3 wallPosition = new Vector3(row, 0, bottomLeftV.z);
-            AddWallPositionToList(wallPosition, possibleWallHorizontalPosition, possibleDoorHorizontalPosition);
+
+            if (row == (int)bottomLeftV.x + (increment * index))
+            {
+                if (increment <= 1)
+                    index += 2;
+                else
+                    index++;
+                //this wall should have torch
+                hasTorch = true;
+            }
+
+            AddWallPositionToList(wallPosition, possibleWallHorizontalPosition, possibleDoorHorizontalPosition, hasTorch, possibleTorchHorizontalPosition);
+
+            hasTorch = false;
         }
+
+        increment = (int)Math.Ceiling((topRightV.x - topLeftV.x) / torchFrequency);
+        index = 1;
+
         for (int row = (int)topLeftV.x; row < (int)topRightCorner.x; row++)
         {
             Vector3 wallPosition = new Vector3(row, 0, topRightV.z);
-            AddWallPositionToList(wallPosition, possibleWallHorizontalPosition, possibleDoorHorizontalPosition);
+
+            if (row == (int)topLeftV.x + (increment * index))
+            {
+                if (increment <= 1)
+                    index += 2;
+                else
+                    index++;
+                hasTorch = true;
+            }
+
+            AddWallPositionToList(wallPosition, possibleWallHorizontalPosition, possibleDoorHorizontalPosition, hasTorch, possibleTorchHorizontalPosition);
+
+            hasTorch = false;
         }
+
+        increment = (int)Math.Ceiling((topLeftV.z - bottomLeftV.z) / torchFrequency);
+        index = 1;
+
         for (int col = (int)bottomLeftV.z; col < (int)topLeftV.z; col++)
         {
             Vector3 wallPosition = new Vector3(bottomLeftV.x, 0, col);
-            AddWallPositionToList(wallPosition, possibleWallVerticalPosition, possibleDoorVerticalPosition);
+
+            if (col == (int)bottomLeftV.z + (increment * index))
+            {
+                if (increment <= 1)
+                    index += 2;
+                else
+                    index++;
+                hasTorch = true;
+            }
+
+            AddWallPositionToList(wallPosition, possibleWallVerticalPosition, possibleDoorVerticalPosition, hasTorch, possibleTorchVerticalPosition);
+
+            hasTorch = false;
         }
+
+        increment = (int)Math.Ceiling((topRightV.z - bottomRightV.z) / torchFrequency);
+        index = 1;
+
         for (int col = (int)bottomRightV.z; col < (int)topRightV.z; col++)
         {
             Vector3 wallPosition = new Vector3(bottomRightV.x, 0, col);
-            AddWallPositionToList(wallPosition, possibleWallVerticalPosition, possibleDoorVerticalPosition);
+
+            if (col == (int)bottomLeftV.z + (increment * index))
+            {
+                if (increment <= 1)
+                    index += 2;
+                else
+                    index++;
+                hasTorch = true;
+            }
+
+            AddWallPositionToList(wallPosition, possibleWallVerticalPosition, possibleDoorVerticalPosition, hasTorch, possibleTorchVerticalPosition);
+
+            hasTorch = false;
+
+            //Vector3 torchPosition = new Vector3(bottomRightV.x, ceilingHeight - 1, col + 0.5f);
+            //Instantiate(testCube, torchPosition, Quaternion.identity);
         }
     }
 
-    private void AddWallPositionToList(Vector3 wallStart, List<Vector3Int> wallList, List<Vector3Int> doorList)
+    private void AddWallPositionToList(Vector3 wallStart, List<Vector3Int> wallList, List<Vector3Int> doorList, bool hasTorch, List<Vector3> torchList)
     {
         Vector3Int point = Vector3Int.CeilToInt(wallStart);
+
+        Vector3 torchPoint = new Vector3(point.x, ceilingHeight - 1, point.z);
+
         if (wallList.Contains(point))
         {
             doorList.Add(point);
             wallList.Remove(point);
+            if (torchList.Contains(torchPoint))
+                torchList.Remove(torchPoint);
         }
         else
         {
             wallList.Add(point);
+            if (hasTorch)
+                torchList.Add(torchPoint);
         }
     }
 

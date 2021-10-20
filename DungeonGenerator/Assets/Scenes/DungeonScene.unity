@@ -172,6 +172,8 @@ MonoBehaviour:
   roomLengthMin: 10
   maxIterations: 50
   corridorWidth: 4
+  ceilingHeight: 4
+  torchFrequency: 2
   roomMat: {fileID: 2100000, guid: 680474eb0c8601f43bc13bfe99b0849d, type: 2}
   startRoomMat: {fileID: 2100000, guid: 00c5ce9389aa898499a163a0d3268f60, type: 2}
   endRoomMat: {fileID: 2100000, guid: 4766be9d3541f4343bc8e3abade1711a, type: 2}
@@ -185,6 +187,7 @@ MonoBehaviour:
   wallHorizontal: {fileID: 4573260950528285806, guid: cdb868496aff89741b749a86b117d062, type: 3}
   drawAreaHorizontal: {fileID: 1774063682763018110, guid: b415a16dd12fd394cb46b08a3bc0fe8c, type: 3}
   drawAreaVertical: {fileID: 6951730704688099949, guid: ce20d98c19bbedf4d9b8dc7c88e9b8cc, type: 3}
+  testCube: {fileID: 8886134468197473444, guid: b0a0ad140cda90d4ab00d3a55cb0ba77, type: 3}
 --- !u!1 &653260035
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,7 +709,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &2138677392
 Light:
   m_ObjectHideFlags: 0

@@ -197,7 +197,7 @@ public class HandleInteraction : MonoBehaviour
         bridge.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
         bridge.GetComponent<Renderer>().material = bridgeMat;
         bridge.transform.gameObject.SetActive(true);
-        //bridge.gameObject.isStatic = true;        
+        bridge.gameObject.isStatic = true;        
         bridge.transform.position = position;
         bridge.transform.localScale = Vector3.one;
         if (!vertical)
