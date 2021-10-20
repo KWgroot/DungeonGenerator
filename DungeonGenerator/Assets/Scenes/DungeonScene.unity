@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0, g: 0, b: 0, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.05
@@ -184,7 +184,7 @@ MonoBehaviour:
   wallVertical: {fileID: 4274494962566119954, guid: 0798d4d4a9bba5e46971b8693a58563b, type: 3}
   wallHorizontal: {fileID: 4573260950528285806, guid: cdb868496aff89741b749a86b117d062, type: 3}
   drawAreaHorizontal: {fileID: 1774063682763018110, guid: b415a16dd12fd394cb46b08a3bc0fe8c, type: 3}
-  drawAreaVertical: {fileID: 0}
+  drawAreaVertical: {fileID: 6951730704688099949, guid: ce20d98c19bbedf4d9b8dc7c88e9b8cc, type: 3}
 --- !u!1 &653260035
 GameObject:
   m_ObjectHideFlags: 0

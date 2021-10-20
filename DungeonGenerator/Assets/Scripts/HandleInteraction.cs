@@ -10,6 +10,7 @@ public class HandleInteraction : MonoBehaviour
     public float raycastDistance, segmentLength;
     private DungeonCreator dungeonVariables;
     public Material bridgeMat;
+    public bool vertical = false;
 
     private bool inRange = false, interacting;
     private new Camera camera;
@@ -46,20 +47,40 @@ public class HandleInteraction : MonoBehaviour
                     Vector3 topLeftV;
                     Vector3 topRightV;
 
-                    if ((hit.point.x - previousPoint.x) < 0) // right to left
+                    if (!vertical)
                     {
-                        bottomLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                        bottomRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
-                        topLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                        topRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                        if ((hit.point.x - previousPoint.x) < 0) // right to left
+                        {
+                            bottomLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                            bottomRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                            topLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                            topRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                        }
+                        else // left to right
+                        {
+                            bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                            bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                            topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
+                            topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                        }
                     }
-                    else // left to right
+                    else
                     {
-                        bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                        bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
-                        topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                        topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
-                    }                    
+                        if ((hit.point.z - previousPoint.z) < 0) // right to left
+                        {
+                            bottomLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
+                            bottomRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
+                            topLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
+                            topRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
+                        }
+                        else // left to right
+                        {
+                            bottomLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
+                            bottomRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
+                            topLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
+                            topRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
+                        }
+                    }
 
                     Vector3[] vertices = new Vector3[]
                     {
@@ -176,10 +197,15 @@ public class HandleInteraction : MonoBehaviour
         bridge.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
         bridge.GetComponent<Renderer>().material = bridgeMat;
         bridge.transform.gameObject.SetActive(true);
-        bridge.gameObject.isStatic = true;        
+        //bridge.gameObject.isStatic = true;        
         bridge.transform.position = position;
-        bridge.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        bridge.transform.localScale = Vector3.one;
+        if (!vertical)
+            bridge.transform.localScale = new Vector3(bridge.transform.localScale.x / bridge.transform.parent.localScale.x, 1, 1);
+        else
+            bridge.transform.localScale = new Vector3(1, 1, bridge.transform.localScale.x / bridge.transform.parent.localScale.x);
         bridge.AddComponent<MeshCollider>();
+        bridge.GetComponent<MeshFilter>().mesh.RecalculateNormals();
     }
 
     private void OnTriggerEnter(Collider other)

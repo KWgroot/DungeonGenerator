@@ -55,13 +55,23 @@ public class DungeonCreator : MonoBehaviour
                 if (listOfRooms[i].Direction == Direction.Horizontal) // Horizontal corridor
                 {
                     CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat, false, true);
-                    Instantiate(drawAreaHorizontal, new Vector3(listOfRooms[i].BottomLeftAreaCorner.x + (listOfRooms[i].TopRightAreaCorner.x - listOfRooms[i].BottomLeftAreaCorner.x) / 2,
+                    GameObject area = GameObject.Instantiate(drawAreaHorizontal, new Vector3(listOfRooms[i].BottomLeftAreaCorner.x + (float)(listOfRooms[i].TopRightAreaCorner.x - listOfRooms[i].BottomLeftAreaCorner.x) / 2f,
                         0, listOfRooms[i].BottomLeftAreaCorner.y + (listOfRooms[i].TopRightAreaCorner.y - listOfRooms[i].BottomLeftAreaCorner.y) / 2), Quaternion.identity);
+                    area.transform.localScale = new Vector3(listOfRooms[i].TopRightAreaCorner.x - listOfRooms[i].BottomLeftAreaCorner.x, 1, 1);
+                    area.transform.GetChild(0).GetComponent<Camera>().orthographicSize = 1.2f + (listOfRooms[i].TopRightAreaCorner.x - listOfRooms[i].BottomLeftAreaCorner.x) / 10f;
+                    area.transform.parent = transform;
                 }
                 else if (listOfRooms[i].Direction == Direction.Vertical) // Vertical corridor
                 {
                     CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat, false, true);
-                    Debug.Log("Vertical");
+                    GameObject area = GameObject.Instantiate(drawAreaVertical, new Vector3(listOfRooms[i].BottomLeftAreaCorner.x + (listOfRooms[i].TopRightAreaCorner.x - listOfRooms[i].BottomLeftAreaCorner.x) / 2,
+                        0, listOfRooms[i].BottomLeftAreaCorner.y + (float)(listOfRooms[i].TopRightAreaCorner.y - listOfRooms[i].BottomLeftAreaCorner.y) / 2f), Quaternion.identity);
+                    area.transform.Rotate(0, 90, 0);
+                    area.transform.localScale = new Vector3(listOfRooms[i].TopRightAreaCorner.y - listOfRooms[i].BottomLeftAreaCorner.y, 1, 1);
+                    area.transform.GetChild(0).GetComponent<Camera>().orthographicSize = 1.2f + (listOfRooms[i].TopRightAreaCorner.y - listOfRooms[i].BottomLeftAreaCorner.y) / 10f;
+                    area.transform.parent = transform;
+                    //bottomleft is now topleft
+                    //topright is now bottomright
                 }
             }
             else
