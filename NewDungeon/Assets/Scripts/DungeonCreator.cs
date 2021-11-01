@@ -18,15 +18,16 @@ public class DungeonCreator : MonoBehaviour
     public int amountOfDrawRooms;
     [Range(2, 20)]
     public int torchFrequency;
-    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical, testCube;
+    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical, horizontalTorch, verticalTorch;
     List<Vector3Int> possibleDoorVerticalPosition;
     List<Vector3Int> possibleDoorHorizontalPosition;
     List<Vector3Int> possibleWallHorizontalPosition;
     List<Vector3Int> possibleWallVerticalPosition;
-    List<Vector3> possibleTorchHorizontalPosition;
-    List<Vector3> possibleTorchVerticalPosition;
+    List<Vector3Int> possibleTorchHorizontalPosition;
+    List<Vector3Int> possibleTorchVerticalPosition;
 
     private GameObject floorParent, ceilingParent, torchParent;
+    private int torchIndex = 1;
 
     // Start is called before the first frame update
     void Start()
@@ -60,8 +61,8 @@ public class DungeonCreator : MonoBehaviour
         possibleDoorHorizontalPosition = new List<Vector3Int>();
         possibleWallHorizontalPosition = new List<Vector3Int>();
         possibleWallVerticalPosition = new List<Vector3Int>();
-        possibleTorchHorizontalPosition = new List<Vector3>();
-        possibleTorchVerticalPosition = new List<Vector3>();
+        possibleTorchHorizontalPosition = new List<Vector3Int>();
+        possibleTorchVerticalPosition = new List<Vector3Int>();
 
         for (int i = 0; i < listOfRooms.Count; i++)
         {
@@ -163,13 +164,20 @@ public class DungeonCreator : MonoBehaviour
                 CreateWall(wallParent, wallPosition, wallVertical, false);
         }
 
-        foreach (Vector3 torchPosition in possibleTorchHorizontalPosition)
+        foreach (Vector3Int torchPosition in possibleTorchHorizontalPosition)
         {
-            CreateTorch(torchPosition, testCube);
+            if (possibleDoorHorizontalPosition.Contains(torchPosition))
+                CreateTorch(torchPosition, horizontalTorch, true);
+            else
+                CreateTorch(torchPosition, horizontalTorch, false);
         }
-        foreach (Vector3 torchPosition in possibleTorchVerticalPosition)
+
+        foreach (Vector3Int torchPosition in possibleTorchVerticalPosition)
         {
-            CreateTorch(torchPosition, testCube);
+            if (possibleDoorVerticalPosition.Contains(torchPosition))
+                CreateTorch(torchPosition, verticalTorch, true);
+            else
+                CreateTorch(torchPosition, verticalTorch, false);
         }
     }
 
@@ -184,9 +192,17 @@ public class DungeonCreator : MonoBehaviour
             wall.transform.GetChild(0).GetComponent<MeshFilter>().mesh.triangles = wall.transform.GetChild(0).GetComponent<MeshFilter>().mesh.triangles.Reverse().ToArray();
     }
 
-    private void CreateTorch(Vector3 torchPosition, GameObject torchPrefab)
+    private void CreateTorch(Vector3 torchPosition, GameObject torchPrefab, bool flip)
     {
-        Instantiate(torchPrefab, torchPosition, Quaternion.identity, torchParent.transform);
+        torchPosition.y = ceilingHeight - 1;
+        // throws LOD warnings
+        GameObject torch = Instantiate(torchPrefab, torchPosition, Quaternion.identity, torchParent.transform);
+
+        torch.name = "Torch #" + torchIndex;
+        torchIndex++;
+
+        if (flip)
+            torch.transform.Rotate(0, 180, 0);
     }
 
     private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner, Material myMat, bool spawnRoom = false, bool removeCorridor = false)
@@ -389,19 +405,17 @@ public class DungeonCreator : MonoBehaviour
         possibleWallVerticalPosition.RemoveAll(x => verticalDoors.Contains(x));*/
     }
 
-    private void AddWallPositionToList(Vector3 wallStart, List<Vector3Int> wallList, List<Vector3Int> flipList, bool hasTorch, List<Vector3> torchList, bool horizontal)
+    private void AddWallPositionToList(Vector3 wallStart, List<Vector3Int> wallList, List<Vector3Int> flipList, bool hasTorch, List<Vector3Int> torchList, bool horizontal)
     {
         Vector3Int point = Vector3Int.CeilToInt(new Vector3(wallStart.x, 0, wallStart.z));
-
-        Vector3 torchPoint = new Vector3(point.x, ceilingHeight - 1, point.z);
 
         if (wallList.Contains(point))
         {
             wallList.Remove(point);
             //doorList.Add(new Vector3Int(point.x, 1, point.z));
             //wallList.Remove(new Vector3Int(point.x, 1, point.z));
-            if (torchList.Contains(torchPoint))
-                torchList.Remove(torchPoint);
+            if (torchList.Contains(point))
+                torchList.Remove(point);
         }
         /*else if (wallList.Contains(new Vector3Int(point.x, 1, point.z)))
         {
@@ -420,7 +434,7 @@ public class DungeonCreator : MonoBehaviour
                 flipList.Add(point);
             }
             if (hasTorch)
-                torchList.Add(torchPoint);
+                torchList.Add(point);
         }
     }
 
