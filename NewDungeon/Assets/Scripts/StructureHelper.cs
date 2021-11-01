@@ -69,6 +69,16 @@ public static class StructureHelper
         Vector2 tempVector = sum / 2;
         return new Vector2Int((int)tempVector.x, (int)tempVector.y);
     }
+
+    public static int CalculateXPoint(Vector2Int v1, Vector2Int v2)
+    {
+        return Random.Range((int)v1.x, (int)v2.x);
+    }
+
+    public static int CalculateYPoint(Vector2Int v1, Vector2 v2)
+    {
+        return Random.Range((int)v1.y, (int)v2.y);
+    }
 }
 
 public enum RelativePosition

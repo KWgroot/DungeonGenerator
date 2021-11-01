@@ -104,34 +104,54 @@ public class CorridorNode : Node
     {
         if (rightNodeUp.y >= leftNodeUp.y && leftNodeDown.y >= rightNodeDown.y)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 leftNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
-                ).y;
+                ).y;*/
+
+            return StructureHelper.CalculateYPoint(
+                leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
+                leftNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
+                );
         }
 
         if (rightNodeUp.y <= leftNodeUp.y && leftNodeDown.y <= rightNodeDown.y)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
-                ).y;
+                ).y;*/
+
+            return StructureHelper.CalculateYPoint(
+                rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
+                rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
+                );
         }
 
         if (leftNodeUp.y >= rightNodeDown.y && leftNodeUp.y <= rightNodeUp.y)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 leftNodeUp - new Vector2Int(0, modifierDistanceFromWall)
-                ).y;
+                ).y;*/
+
+            return StructureHelper.CalculateYPoint(
+                rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
+                leftNodeUp - new Vector2Int(0, modifierDistanceFromWall)
+                );
         }
 
         if (leftNodeDown.y >= rightNodeDown.y && leftNodeDown.y <= rightNodeUp.y)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
-                ).y;
+                ).y;*/
+
+            return StructureHelper.CalculateYPoint(
+                leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
+                rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
+                );
         }
 
         return -1;
@@ -200,36 +220,54 @@ public class CorridorNode : Node
     {
         if (topNodeLeft.x < bottomNodeLeft.x && bottomNodeRight.x < topNodeRight.x)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
-                ).x;
+                ).x;*/
+
+            return StructureHelper.CalculateXPoint(
+                bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
+                bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
+                );
         }
 
         if (topNodeLeft.x >= bottomNodeLeft.x && bottomNodeRight.x >= topNodeRight.x)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
-                ).x;
+                ).x;*/
+
+            return StructureHelper.CalculateXPoint(
+                topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
+                topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
+                );
         }
 
         if (bottomNodeLeft.x >= (topNodeLeft.x) && bottomNodeLeft.x <= topNodeRight.x)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
+                ).x;*/
 
-                ).x;
+            return StructureHelper.CalculateXPoint(
+                bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
+                topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
+                );
         }
 
         if (bottomNodeRight.x <= topNodeRight.x && bottomNodeRight.x >= topNodeLeft.x)
         {
-            return StructureHelper.CalculateMiddlePoint(
+            /*return StructureHelper.CalculateMiddlePoint(
                 topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
+                ).x;*/
 
-                ).x;
+            return StructureHelper.CalculateXPoint(
+                topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
+                bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
+                );
         }
 
         return -1;

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DungeonCreator : MonoBehaviour
 {
-    public int dungeonWidth, dungeonLength, roomWidthMin, roomLengthMin, maxIterations, corridorWidth, ceilingHeight, torchFrequency;
+    public int dungeonWidth, dungeonLength, roomWidthMin, roomLengthMin, maxIterations, corridorWidth, ceilingHeight;
     public Material roomMat, startRoomMat, endRoomMat, wallMat;
     [Range(0.0f, 0.3f)]
     public float roomBottomCornerModifier;
@@ -16,13 +16,13 @@ public class DungeonCreator : MonoBehaviour
     public int roomOffset;
     [Range(1, 20)]
     public int amountOfDrawRooms;
+    [Range(2, 20)]
+    public int torchFrequency;
     public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical, testCube;
     List<Vector3Int> possibleDoorVerticalPosition;
     List<Vector3Int> possibleDoorHorizontalPosition;
     List<Vector3Int> possibleWallHorizontalPosition;
     List<Vector3Int> possibleWallVerticalPosition;
-    List<Vector3Int> horizontalCheckList;
-    List<Vector3Int> verticalCheckList;
     List<Vector3> possibleTorchHorizontalPosition;
     List<Vector3> possibleTorchVerticalPosition;
 
@@ -60,8 +60,6 @@ public class DungeonCreator : MonoBehaviour
         possibleDoorHorizontalPosition = new List<Vector3Int>();
         possibleWallHorizontalPosition = new List<Vector3Int>();
         possibleWallVerticalPosition = new List<Vector3Int>();
-        horizontalCheckList = new List<Vector3Int>();
-        verticalCheckList = new List<Vector3Int>();
         possibleTorchHorizontalPosition = new List<Vector3>();
         possibleTorchVerticalPosition = new List<Vector3>();
 
@@ -181,7 +179,7 @@ public class DungeonCreator : MonoBehaviour
             wallPosition.y = 0;
 
         GameObject wall = Instantiate(wallPrefab, wallPosition, Quaternion.identity, wallParent.transform);
-        
+
         if (flip)
             wall.transform.GetChild(0).GetComponent<MeshFilter>().mesh.triangles = wall.transform.GetChild(0).GetComponent<MeshFilter>().mesh.triangles.Reverse().ToArray();
     }
@@ -262,7 +260,15 @@ public class DungeonCreator : MonoBehaviour
 
         //float increment = (float)Math.Round((bottomRightV.x - bottomLeftV.x / torchFrequency) * 2f, MidpointRounding.AwayFromZero) / 2f;
         bool hasTorch = false;
-        int increment = (int)Math.Ceiling((bottomRightV.x - bottomLeftV.x) / torchFrequency);
+        int myTorchFrequency = torchFrequency;
+        int wallLength = (int)bottomRightV.x - (int)bottomLeftV.x;
+        while (wallLength > roomWidthMin)
+        {
+            wallLength -= roomWidthMin;
+            myTorchFrequency++;
+        }
+
+        int increment = (int)Math.Ceiling((bottomRightV.x - bottomLeftV.x) / myTorchFrequency);
         int index = 1;
 
         for (int row = (int)bottomLeftV.x; row < (int)bottomRightV.x; row++)
@@ -284,7 +290,15 @@ public class DungeonCreator : MonoBehaviour
             hasTorch = false;
         }
 
-        increment = (int)Math.Ceiling((topRightV.x - topLeftV.x) / torchFrequency);
+        myTorchFrequency = torchFrequency;
+        wallLength = (int)topRightV.x - (int)topLeftV.x;
+        while (wallLength > roomWidthMin)
+        {
+            wallLength -= roomWidthMin;
+            myTorchFrequency++;
+        }
+
+        increment = (int)Math.Ceiling((topRightV.x - topLeftV.x) / myTorchFrequency);
         index = 1;
 
         for (int row = (int)topLeftV.x; row < (int)topRightCorner.x; row++)
@@ -305,7 +319,15 @@ public class DungeonCreator : MonoBehaviour
             hasTorch = false;
         }
 
-        increment = (int)Math.Ceiling((topLeftV.z - bottomLeftV.z) / torchFrequency);
+        myTorchFrequency = torchFrequency;
+        wallLength = (int)topLeftV.z - (int)bottomLeftV.z;
+        while (wallLength > roomLengthMin)
+        {
+            wallLength -= roomLengthMin;
+            myTorchFrequency++;
+        }
+
+        increment = (int)Math.Ceiling((topLeftV.z - bottomLeftV.z) / myTorchFrequency);
         index = 1;
 
         for (int col = (int)bottomLeftV.z; col < (int)topLeftV.z; col++)
@@ -326,7 +348,15 @@ public class DungeonCreator : MonoBehaviour
             hasTorch = false;
         }
 
-        increment = (int)Math.Ceiling((topRightV.z - bottomRightV.z) / torchFrequency);
+        myTorchFrequency = torchFrequency;
+        wallLength = (int)topRightV.z - (int)bottomRightV.z;
+        while (wallLength > roomLengthMin)
+        {
+            wallLength -= roomLengthMin;
+            myTorchFrequency++;
+        }
+
+        increment = (int)Math.Ceiling((topRightV.z - bottomRightV.z) / myTorchFrequency);
         index = 1;
 
         for (int col = (int)bottomRightV.z; col < (int)topRightV.z; col++)
