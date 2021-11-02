@@ -14,7 +14,7 @@ public class Line
     public Vector2Int Coordinates { get => coordinates; set => coordinates = value; }
 }
 
-public enum Orientation
+public enum Orientation // Am I drawing this line vertical or horizontal? (decides room)
 {
     Horizontal = 0,
     Vertical = 1

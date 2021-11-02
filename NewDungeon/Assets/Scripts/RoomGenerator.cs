@@ -14,7 +14,14 @@ public class RoomGenerator
         this.roomLengthMin = roomLengthMin;
         this.roomWidthMin = roomWidthMin;
     }
-
+    /// <summary>
+    /// Generates rooms in created spaces from BSP that fit in each space and saves their vertice points.
+    /// </summary>
+    /// <param name="roomSpaces">List of spaces where rooms will go.</param>
+    /// <param name="roomBottomCornerModifier">How much space between room edge and space edge?</param>
+    /// <param name="roomTopCornerMidifier">How much space between room edge and space edge?</param>
+    /// <param name="roomOffset">Offset from edge.</param>
+    /// <returns></returns>
     public List<RoomNode> GenerateRoomsInGivenSpaces(List<Node> roomSpaces, float roomBottomCornerModifier, float roomTopCornerMidifier, int roomOffset)
     {
         List<RoomNode> listToReturn = new List<RoomNode>();

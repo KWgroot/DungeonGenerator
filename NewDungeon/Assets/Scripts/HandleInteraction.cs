@@ -20,27 +20,28 @@ public class HandleInteraction : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        camera = transform.GetChild(0).GetComponent<Camera>();
-        dungeonVariables = GameObject.FindGameObjectWithTag("Dungeon Creator").GetComponent<DungeonCreator>();
-        text = GameObject.FindGameObjectWithTag("UIText").GetComponent<TextMeshProUGUI>();
+        camera = transform.GetChild(0).GetComponent<Camera>(); // Get my own specific camera for drawing.
+        dungeonVariables = GameObject.FindGameObjectWithTag("Dungeon Creator").GetComponent<DungeonCreator>(); // Variables to size me.
+        text = GameObject.FindGameObjectWithTag("UIText").GetComponent<TextMeshProUGUI>(); // Text to show you can draw here.
+        transform.GetChild(2).transform.localScale = new Vector3(1, 3, dungeonVariables.corridorWidth); // Scale me based on the dungeon sizes.
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (inRange && !interacting && Input.GetKeyDown("e"))
+        if (inRange && !interacting && Input.GetKeyDown("e")) // Player is close and wants to interact.
             InteractWithMe(true);
-        else if (interacting && (Input.GetKeyDown("e") || Input.GetKeyDown("escape")))
+        else if (interacting && (Input.GetKeyDown("e") || Input.GetKeyDown("escape"))) // Player is interacting and wants to stop.
             InteractWithMe(false);
 
-        if (interacting && Input.GetMouseButton(0) && previousMousePos != Input.mousePosition)
+        if (interacting && Input.GetMouseButton(0) && previousMousePos != Input.mousePosition) // Currently drawing and moving the mouse.
         {
             Ray ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit, raycastDistance, layerMask))
             {
-                if (hit.transform.name != "Segment" && previousPoint != Vector3.zero)
+                if (hit.transform.name != "Segment" && previousPoint != Vector3.zero) // Hit an empty space.
                 {
                     Vector3 bottomLeftV;
                     Vector3 bottomRightV;
@@ -81,7 +82,7 @@ public class HandleInteraction : MonoBehaviour
                             topRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
                         }
                     }
-
+                    // Start creating a mesh for the segment drawn.
                     Vector3[] vertices = new Vector3[]
                     {
                         topLeftV,
@@ -111,6 +112,7 @@ public class HandleInteraction : MonoBehaviour
                     mesh.uv = uvs;
                     mesh.triangles = triangles;
 
+                    // Parent of all segments.
                     GameObject bridgeSegment = new GameObject("Segment", typeof(MeshFilter), typeof(MeshRenderer));
 
                     bridgeSegment.transform.position = Vector3.zero;
@@ -124,25 +126,20 @@ public class HandleInteraction : MonoBehaviour
                 }
 
                 previousPoint = hit.point;
-
-                // get the point position, create a mesh the width of a corridor
-                // what should length of each mesh be? Too long and it's not painting, too short and we make too many
-                // place mesh as child of bridge object
-                // calculate normals
-                // give either box or mesh collider depending on what mesh shape chosen
-                // make sure gameobject name is easy to read to prevent overwriting
-                // IN THEORY this should do it... I think... idk that's for tomorrow Koen to figure out I guess.
             }
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0)) // Stopped drawing.
             previousPoint = Vector3.zero;
 
         previousMousePos = Input.mousePosition;
     }
-
+    /// <summary>
+    /// Interaction with object starts.
+    /// </summary>
+    /// <param name="startInteracting">Start or stop interacting.</param>
     private void InteractWithMe(bool startInteracting)
     {
-        if (startInteracting)
+        if (startInteracting) // If starting to interact, lock mouse, set up colliders and camera.
         {
             interacting = true;
             camera.enabled = true;
@@ -163,7 +160,7 @@ public class HandleInteraction : MonoBehaviour
             transform.GetChild(1).GetComponent<MeshFilter>().mesh.Clear();
             DestroyImmediate(transform.GetChild(1).GetComponent<MeshCollider>());
         }
-        else
+        else // Stop interacting and finalize whatever bridge created.
         {
             interacting = false;
             camera.enabled = false;
@@ -177,7 +174,10 @@ public class HandleInteraction : MonoBehaviour
             previousPoint = Vector3.zero;
         }
     }
-
+    /// <summary>
+    /// Combines meshes into any parent given.
+    /// </summary>
+    /// <param name="bridge">Parent object.</param>
     private void CombineMeshes(GameObject bridge)
     {
         Vector3 position = bridge.transform.position;

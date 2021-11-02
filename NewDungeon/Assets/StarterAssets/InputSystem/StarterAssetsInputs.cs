@@ -12,6 +12,7 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+		public AudioSource walking, sprinting;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -53,6 +54,18 @@ namespace StarterAssets
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
+
+			if (move == Vector2.zero)
+			{
+				sprinting.Stop();
+				walking.Stop();
+			}
+			else if (move != Vector2.zero && !sprint && !walking.isPlaying)
+			{
+				walking.Play();
+			}
+			else if (move != Vector2.zero && sprint && !sprinting.isPlaying)
+				sprinting.Play();
 		} 
 
 		public void LookInput(Vector2 newLookDirection)
@@ -68,6 +81,18 @@ namespace StarterAssets
 		public void SprintInput(bool newSprintState)
 		{
 			sprint = newSprintState;
+
+			if (sprint && move != Vector2.zero)
+            {
+				walking.Stop();
+				if (!sprinting.isPlaying)
+					sprinting.Play();
+            }
+			else if (!sprint && move != Vector2.zero)
+            {
+				sprinting.Stop();
+				walking.Play();
+            }
 		}
 
 #if !UNITY_IOS || !UNITY_ANDROID

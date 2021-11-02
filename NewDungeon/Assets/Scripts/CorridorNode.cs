@@ -17,7 +17,9 @@ public class CorridorNode : Node
         this.corridorWidth = corridorWidth;
         GenerateCorridor();
     }
-
+    /// <summary>
+    /// Generate corridor positions and store directions.
+    /// </summary>
     private void GenerateCorridor()
     {
         RelativePosition relativePositionOfStructure2 = CheckPositionStructure2AgainstStructure1();
@@ -43,20 +45,24 @@ public class CorridorNode : Node
                 break;
         }
     }
-
+    /// <summary>
+    /// If rooms are horizontal to me, store this and the bottom left and top right of this corridor to generate a mesh from lists.
+    /// </summary>
+    /// <param name="structure1">Room one.</param>
+    /// <param name="structure2">Room two.</param>
     private void ProcessRoomInRelationRightOrLeft(Node structure1, Node structure2)
     {
         Node leftStructure = null;
-        List<Node> leftStructureChildren = StructureHelper.TraverseGraphToExtractLowestLeafes(structure1);
+        List<Node> leftStructureChildren = StructureHelper.TraverseGraphToExtractLowestLeafes(structure1); // Gets room from tree graph.
         Node rightStructure = null;
-        List<Node> rightStructureChildren = StructureHelper.TraverseGraphToExtractLowestLeafes(structure2);
+        List<Node> rightStructureChildren = StructureHelper.TraverseGraphToExtractLowestLeafes(structure2); // Gets adjacent room from tree graph.
 
         List<Node> sortedLeftStructure = leftStructureChildren.OrderByDescending(child => child.TopRightAreaCorner.x).ToList();
-        if (sortedLeftStructure.Count == 1)
+        if (sortedLeftStructure.Count == 1) // If I found the structure by ordering, get it.
         {
             leftStructure = sortedLeftStructure[0];
         }
-        else
+        else // If there's more than 1 found structure, find the right one.
         {
             int maxX = sortedLeftStructure[0].TopRightAreaCorner.x;
             sortedLeftStructure = sortedLeftStructure.Where(children => Math.Abs(maxX - children.TopRightAreaCorner.x) < 10).ToList();
@@ -64,7 +70,7 @@ public class CorridorNode : Node
             leftStructure = sortedLeftStructure[index];
         }
 
-        List<Node> possibleNeighboursInRightStructureList = rightStructureChildren.Where(
+        List<Node> possibleNeighboursInRightStructureList = rightStructureChildren.Where( // Fill list with neighbour rooms.
             child => GetValidYForNeighourLeftRight(
                 leftStructure.TopRightAreaCorner,
                 leftStructure.BottomRightAreaCorner,
@@ -99,17 +105,19 @@ public class CorridorNode : Node
         BottomLeftAreaCorner = new Vector2Int(leftStructure.BottomRightAreaCorner.x, y);
         TopRightAreaCorner = new Vector2Int(rightStructure.TopLeftAreaCorner.x, y + this.corridorWidth);
     }
-
+    /// <summary>
+    /// Get Y starting point for corridor.
+    /// </summary>
+    /// <param name="leftNodeUp">Left node upper point.</param>
+    /// <param name="leftNodeDown">Left node lower point.</param>
+    /// <param name="rightNodeUp">Right node upper point.</param>
+    /// <param name="rightNodeDown">Right node lower point.</param>
+    /// <returns></returns>
     private int GetValidYForNeighourLeftRight(Vector2Int leftNodeUp, Vector2Int leftNodeDown, Vector2Int rightNodeUp, Vector2Int rightNodeDown)
     {
         if (rightNodeUp.y >= leftNodeUp.y && leftNodeDown.y >= rightNodeDown.y)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
-                leftNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
-                ).y;*/
-
-            return StructureHelper.CalculateYPoint(
+            return StructureHelper.CalculateYPoint( // Random Y point to start corridor points.
                 leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 leftNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
                 );
@@ -117,11 +125,6 @@ public class CorridorNode : Node
 
         if (rightNodeUp.y <= leftNodeUp.y && leftNodeDown.y <= rightNodeDown.y)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
-                rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
-                ).y;*/
-
             return StructureHelper.CalculateYPoint(
                 rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
@@ -130,11 +133,6 @@ public class CorridorNode : Node
 
         if (leftNodeUp.y >= rightNodeDown.y && leftNodeUp.y <= rightNodeUp.y)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
-                leftNodeUp - new Vector2Int(0, modifierDistanceFromWall)
-                ).y;*/
-
             return StructureHelper.CalculateYPoint(
                 rightNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 leftNodeUp - new Vector2Int(0, modifierDistanceFromWall)
@@ -143,11 +141,6 @@ public class CorridorNode : Node
 
         if (leftNodeDown.y >= rightNodeDown.y && leftNodeDown.y <= rightNodeUp.y)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
-                rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
-                ).y;*/
-
             return StructureHelper.CalculateYPoint(
                 leftNodeDown + new Vector2Int(0, modifierDistanceFromWall),
                 rightNodeUp - new Vector2Int(0, modifierDistanceFromWall + this.corridorWidth)
@@ -156,7 +149,11 @@ public class CorridorNode : Node
 
         return -1;
     }
-
+    /// <summary>
+    /// If rooms are vertical to me, store this and the bottom left and top right of this corridor to generate a mesh from lists.
+    /// </summary>
+    /// <param name="structure1">Room one.</param>
+    /// <param name="structure2">Room two.</param>
     private void ProcessRoomInRelationUpOrDown(Node structure1, Node structure2)
     {
         Node bottomStructure = null;
@@ -220,11 +217,6 @@ public class CorridorNode : Node
     {
         if (topNodeLeft.x < bottomNodeLeft.x && bottomNodeRight.x < topNodeRight.x)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
-                bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
-                ).x;*/
-
             return StructureHelper.CalculateXPoint(
                 bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
@@ -233,11 +225,6 @@ public class CorridorNode : Node
 
         if (topNodeLeft.x >= bottomNodeLeft.x && bottomNodeRight.x >= topNodeRight.x)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
-                topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
-                ).x;*/
-
             return StructureHelper.CalculateXPoint(
                 topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
@@ -246,11 +233,6 @@ public class CorridorNode : Node
 
         if (bottomNodeLeft.x >= (topNodeLeft.x) && bottomNodeLeft.x <= topNodeRight.x)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
-                topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
-                ).x;*/
-
             return StructureHelper.CalculateXPoint(
                 bottomNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 topNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
@@ -259,11 +241,6 @@ public class CorridorNode : Node
 
         if (bottomNodeRight.x <= topNodeRight.x && bottomNodeRight.x >= topNodeLeft.x)
         {
-            /*return StructureHelper.CalculateMiddlePoint(
-                topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
-                bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
-                ).x;*/
-
             return StructureHelper.CalculateXPoint(
                 topNodeLeft + new Vector2Int(modifierDistanceFromWall, 0),
                 bottomNodeRight - new Vector2Int(this.corridorWidth + modifierDistanceFromWall, 0)
@@ -272,7 +249,10 @@ public class CorridorNode : Node
 
         return -1;
     }
-
+    /// <summary>
+    /// Check what direction this structure is against another structure and return the position of the structure compared to this one.
+    /// </summary>
+    /// <returns>Direction where other structure is.</returns>
     private RelativePosition CheckPositionStructure2AgainstStructure1()
     {
         Vector2 middlePointStructure1Temp = ((Vector2)structure1.TopRightAreaCorner + structure1.BottomLeftAreaCorner) / 2;

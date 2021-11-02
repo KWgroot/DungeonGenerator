@@ -18,7 +18,7 @@ public class DungeonCreator : MonoBehaviour
     public int amountOfDrawRooms;
     [Range(2, 20)]
     public int torchFrequency;
-    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical, horizontalTorch, verticalTorch;
+    public GameObject player, wallVertical, wallHorizontal, drawAreaHorizontal, drawAreaVertical, horizontalTorch, verticalTorch, stairs;
     List<Vector3Int> possibleDoorVerticalPosition;
     List<Vector3Int> possibleDoorHorizontalPosition;
     List<Vector3Int> possibleWallHorizontalPosition;
@@ -26,7 +26,7 @@ public class DungeonCreator : MonoBehaviour
     List<Vector3Int> possibleTorchHorizontalPosition;
     List<Vector3Int> possibleTorchVerticalPosition;
 
-    private GameObject floorParent, ceilingParent, torchParent;
+    private GameObject floorParent, ceilingParent, torchParent, stairParent;
     private int torchIndex = 1;
 
     // Start is called before the first frame update
@@ -34,30 +34,34 @@ public class DungeonCreator : MonoBehaviour
     {
         CreateDungeon();
     }
-
+    /// <summary>
+    /// The manager of creating any new dungeon from the variables set in the generator.
+    /// </summary>
     public void CreateDungeon()
     {
-        DestroyAllChildren();
+        DestroyAllChildren(); // Reset dungeon
         DungeonGenerator generator = new DungeonGenerator(dungeonWidth, dungeonLength);
         List<Node> listOfRooms = generator.CalculateDungeon(maxIterations, roomWidthMin, roomLengthMin, roomBottomCornerModifier,
             roomTopCornerMidifier, roomOffset, corridorWidth);
 
-        GameObject wallParent = new GameObject("WallParent");
+        GameObject wallParent = new GameObject("WallParent"); // Create empty for wall coming walls
         wallParent.transform.parent = transform;
-        //wallParent.layer = 3;
         wallParent.AddComponent<MeshFilter>();
         wallParent.AddComponent<MeshRenderer>();
+        wallMat.mainTextureScale = new Vector2(1, ceilingHeight);
 
-        floorParent = new GameObject("Floors", typeof(MeshFilter), typeof(MeshRenderer));
+        floorParent = new GameObject("Floors", typeof(MeshFilter), typeof(MeshRenderer)); // Create empty for floors, ceilings and torches
         floorParent.layer = 3;
         floorParent.transform.parent = transform;
         ceilingParent = new GameObject("Ceilings", typeof(MeshFilter), typeof(MeshRenderer));
-        //ceilingParent.layer = 3;
         ceilingParent.transform.parent = transform;
         torchParent = new GameObject("Torches");
         torchParent.transform.parent = transform;
 
-        possibleDoorVerticalPosition = new List<Vector3Int>();
+        stairParent = new GameObject("Stairs");
+        stairParent.transform.parent = transform;
+
+        possibleDoorVerticalPosition = new List<Vector3Int>(); // Lists of positions to check for overlaps
         possibleDoorHorizontalPosition = new List<Vector3Int>();
         possibleWallHorizontalPosition = new List<Vector3Int>();
         possibleWallVerticalPosition = new List<Vector3Int>();
@@ -67,9 +71,9 @@ public class DungeonCreator : MonoBehaviour
         for (int i = 0; i < listOfRooms.Count; i++)
         {
             if (i == 0)
-                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, startRoomMat, true);
+                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, startRoomMat, true); // Start room
             else if (i == listOfRooms.Count / 2)
-                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, endRoomMat);
+                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, endRoomMat); // End room
             else if (i > listOfRooms.Count / 2 && (i % amountOfDrawRooms) == 0) // Working on corridor
             {
                 if (listOfRooms[i].Direction == Direction.Horizontal) // Horizontal corridor
@@ -95,7 +99,7 @@ public class DungeonCreator : MonoBehaviour
                 }
             }
             else
-                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat);
+                CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat); // Just create room (floor)
         }
 
         CreateWalls(wallParent);
@@ -109,13 +113,17 @@ public class DungeonCreator : MonoBehaviour
         // combine wall meshes
         CombineWallMeshes(wallParent);
     }
-
-    private void CombineWallMeshes(GameObject wallCollection, bool floor = false)
+    /// <summary>
+    /// Combines all meshes from a parent object into a single mesh on the parent
+    /// </summary>
+    /// <param name="parent">Parent object to set new mesh to.</param>
+    /// <param name="floor">True if creating a floor.</param>
+    private void CombineWallMeshes(GameObject parent, bool floor = false)
     {
-        Vector3 position = wallCollection.transform.position;
-        wallCollection.transform.position = Vector3.zero;
+        Vector3 position = parent.transform.position; // Places all objects in empty on 0,0,0
+        parent.transform.position = Vector3.zero;
 
-        MeshFilter[] meshFilters = wallCollection.GetComponentsInChildren<MeshFilter>();
+        MeshFilter[] meshFilters = parent.GetComponentsInChildren<MeshFilter>();
         CombineInstance[] combine = new CombineInstance[meshFilters.Length];
         for (int i = 1; i < meshFilters.Length; i++)
         {
@@ -124,28 +132,26 @@ public class DungeonCreator : MonoBehaviour
             meshFilters[i].gameObject.SetActive(false);
         }
 
-        wallCollection.transform.GetComponent<MeshFilter>().mesh = new Mesh();
-        wallCollection.transform.GetComponent<MeshFilter>().mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        wallCollection.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
+        parent.transform.GetComponent<MeshFilter>().mesh = new Mesh();
+        parent.transform.GetComponent<MeshFilter>().mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        parent.transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, true, true);
         if (!floor)
-            wallCollection.GetComponent<Renderer>().material = wallMat;
+            parent.GetComponent<Renderer>().material = wallMat;
         else
-            wallCollection.GetComponent<Renderer>().material = roomMat;
-        wallCollection.transform.gameObject.SetActive(true);
-        //wallCollection.gameObject.isStatic = true;
-        wallCollection.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-        wallCollection.transform.position = position;
+            parent.GetComponent<Renderer>().material = roomMat;
+        parent.transform.gameObject.SetActive(true);
+        parent.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        parent.transform.position = position;
         if (floor)
-            wallCollection.AddComponent<BoxCollider>();
-        //wallCollection.AddComponent<MeshCollider>();
+            parent.AddComponent<MeshCollider>();
     }
-
+    /// <summary>
+    /// Loops through all walls and torches to be placed and calls corresponding function to instantiate them.
+    /// </summary>
+    /// <param name="wallParent">Parent object to place all walls and torches in.</param>
     private void CreateWalls(GameObject wallParent)
     {
-        /*possibleWallHorizontalPosition = possibleWallHorizontalPosition.Distinct().ToList();
-        List<Vector3Int> horizontalDoors = possibleWallHorizontalPosition.Intersect(possibleDoorHorizontalPosition).ToList();
-        possibleWallHorizontalPosition.RemoveAll(x => horizontalDoors.Contains(x));*/
-        foreach (Vector3Int wallPosition in possibleWallHorizontalPosition)
+        foreach (Vector3Int wallPosition in possibleWallHorizontalPosition) // Create horizontal wall from points
         {
             if (possibleDoorHorizontalPosition.Contains(wallPosition))
                 CreateWall(wallParent, wallPosition, wallHorizontal, true);
@@ -153,10 +159,7 @@ public class DungeonCreator : MonoBehaviour
                 CreateWall(wallParent, wallPosition, wallHorizontal, false);
         }
 
-        /*possibleWallVerticalPosition = possibleWallVerticalPosition.Distinct().ToList();
-        List<Vector3Int> verticalDoors = possibleWallVerticalPosition.Intersect(possibleDoorVerticalPosition).ToList();
-        possibleWallVerticalPosition.RemoveAll(x => verticalDoors.Contains(x));*/
-        foreach (Vector3Int wallPosition in possibleWallVerticalPosition)
+        foreach (Vector3Int wallPosition in possibleWallVerticalPosition) // Create vertical wall from points
         {
             if (possibleDoorVerticalPosition.Contains(wallPosition))
                 CreateWall(wallParent, wallPosition, wallVertical, true);
@@ -164,7 +167,7 @@ public class DungeonCreator : MonoBehaviour
                 CreateWall(wallParent, wallPosition, wallVertical, false);
         }
 
-        foreach (Vector3Int torchPosition in possibleTorchHorizontalPosition)
+        foreach (Vector3Int torchPosition in possibleTorchHorizontalPosition) // Create torches on horizontal walls from points
         {
             if (possibleDoorHorizontalPosition.Contains(torchPosition))
                 CreateTorch(torchPosition, horizontalTorch, true);
@@ -172,7 +175,7 @@ public class DungeonCreator : MonoBehaviour
                 CreateTorch(torchPosition, horizontalTorch, false);
         }
 
-        foreach (Vector3Int torchPosition in possibleTorchVerticalPosition)
+        foreach (Vector3Int torchPosition in possibleTorchVerticalPosition) // Create torches on vertical walls from points
         {
             if (possibleDoorVerticalPosition.Contains(torchPosition))
                 CreateTorch(torchPosition, verticalTorch, true);
@@ -180,22 +183,34 @@ public class DungeonCreator : MonoBehaviour
                 CreateTorch(torchPosition, verticalTorch, false);
         }
     }
-
+    /// <summary>
+    /// Instantiates walls based on given points.
+    /// </summary>
+    /// <param name="wallParent">Parent object of all objects.</param>
+    /// <param name="wallPosition">Position to instantiate object.</param>
+    /// <param name="wallPrefab">Prefab to instantiate.</param>
+    /// <param name="flip">Should triangles be flipped?</param>
     private void CreateWall(GameObject wallParent, Vector3Int wallPosition, GameObject wallPrefab, bool flip)
     {
         if (flip)
             wallPosition.y = 0;
 
         GameObject wall = Instantiate(wallPrefab, wallPosition, Quaternion.identity, wallParent.transform);
+        wall.transform.localScale = new Vector3(1, ceilingHeight, 1); // Make wall adjusted to ceiling height.
 
-        if (flip)
+        if (flip) // flip all triangles to support one sided rendering.
             wall.transform.GetChild(0).GetComponent<MeshFilter>().mesh.triangles = wall.transform.GetChild(0).GetComponent<MeshFilter>().mesh.triangles.Reverse().ToArray();
     }
-
+    /// <summary>
+    /// Instantiates torches based on given points.
+    /// </summary>
+    /// <param name="torchPosition">Position to place torch.</param>
+    /// <param name="torchPrefab">Prefab to instantiate.</param>
+    /// <param name="flip">Should torch be flipped?</param>
     private void CreateTorch(Vector3 torchPosition, GameObject torchPrefab, bool flip)
     {
         torchPosition.y = ceilingHeight - 1;
-        // throws LOD warnings
+        // throws LOD warnings, can't figure out how to fix.
         GameObject torch = Instantiate(torchPrefab, torchPosition, Quaternion.identity, torchParent.transform);
 
         torch.name = "Torch #" + torchIndex;
@@ -204,9 +219,17 @@ public class DungeonCreator : MonoBehaviour
         if (flip)
             torch.transform.Rotate(0, 180, 0);
     }
-
+    /// <summary>
+    /// Creates floor and ceiling meshes to support the dungeon layout.
+    /// </summary>
+    /// <param name="bottomLeftCorner">Bottom left vertice of mesh to be drawn.</param>
+    /// <param name="topRightCorner">Top right vertice of mesh to be drawn.</param>
+    /// <param name="myMat">Material to give newly created mesh.</param>
+    /// <param name="spawnRoom">Is this room the spawn room?</param>
+    /// <param name="removeCorridor">Should corridor floor be removed?</param>
     private void CreateMesh(Vector2 bottomLeftCorner, Vector2 topRightCorner, Material myMat, bool spawnRoom = false, bool removeCorridor = false)
     {
+        // First setup all dimensions of the mesh.
         Vector3 bottomLeftV = new Vector3(bottomLeftCorner.x, 0, bottomLeftCorner.y);
         Vector3 bottomRightV = new Vector3(topRightCorner.x, 0, bottomLeftCorner.y);
         Vector3 topLeftV = new Vector3(bottomLeftCorner.x, 0, topRightCorner.y);
@@ -240,24 +263,24 @@ public class DungeonCreator : MonoBehaviour
         mesh.uv = uvs;
         mesh.triangles = triangles;
 
+        // Create ceiling object and get it ready for all ceilings.
         GameObject dungeonCeiling = new GameObject("Ceiling" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
         dungeonCeiling.transform.parent = transform;
 
-        if (!removeCorridor)
+        if (!removeCorridor) // If this floor is a corridor to be removed for a special area, dont make the floor mesh.
         {
-            GameObject dungeonFloor = new GameObject("Floor" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer));
+            GameObject dungeonFloor = new GameObject("Floor" + bottomLeftCorner, typeof(MeshFilter), typeof(MeshRenderer)); // Otherwise just make it.
             dungeonFloor.transform.position = Vector3.zero;
             dungeonFloor.transform.localScale = Vector3.one;
             dungeonFloor.GetComponent<MeshFilter>().mesh = mesh;
             dungeonFloor.GetComponent<MeshRenderer>().material = myMat;
             dungeonFloor.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             dungeonFloor.transform.parent = floorParent.transform;
-            //dungeonFloor.AddComponent<BoxCollider>();
             dungeonFloor.layer = 3;
             dungeonFloor.GetComponent<MeshFilter>().mesh.RecalculateNormals();
         }
 
-        dungeonCeiling.transform.position = Vector3.zero;
+        dungeonCeiling.transform.position = Vector3.zero; // Same mesh as the floor, but flipped triangles.
         dungeonCeiling.transform.localScale = Vector3.one;
         dungeonCeiling.GetComponent<MeshFilter>().mesh = mesh;
         dungeonCeiling.GetComponent<MeshFilter>().mesh.triangles = dungeonCeiling.GetComponent<MeshFilter>().mesh.triangles.Reverse().ToArray();
@@ -267,18 +290,24 @@ public class DungeonCreator : MonoBehaviour
         dungeonCeiling.transform.Translate(0f, ceilingHeight, 0f);
         dungeonCeiling.GetComponent<MeshFilter>().mesh.RecalculateNormals();
 
-        if (spawnRoom)
+        if (spawnRoom) // If this room is the spawn room, place the player here.
             Instantiate(player, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f,
                 bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2), Quaternion.identity);
-        /*else if (spawnRoom && GameObject.FindGameObjectWithTag("Player") != null)
-            GameObject.FindGameObjectWithTag("Player").transform.position = new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, 0f,
-                bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2);*/
 
-        //float increment = (float)Math.Round((bottomRightV.x - bottomLeftV.x / torchFrequency) * 2f, MidpointRounding.AwayFromZero) / 2f;
+        if (myMat == endRoomMat)
+        {
+            for (int i = 0; i <= (ceilingHeight / 3); i++)
+            {
+                Instantiate(stairs, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, i * 3,
+                bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2), Quaternion.identity, stairParent.transform);
+            }
+        }
+
+        // Start seeing where the walls are placed based on the floors and if this wall gets a torch.
         bool hasTorch = false;
         int myTorchFrequency = torchFrequency;
         int wallLength = (int)bottomRightV.x - (int)bottomLeftV.x;
-        while (wallLength > roomWidthMin)
+        while (wallLength > roomWidthMin) // Longer walls get more torches.
         {
             wallLength -= roomWidthMin;
             myTorchFrequency++;
@@ -289,7 +318,7 @@ public class DungeonCreator : MonoBehaviour
 
         for (int row = (int)bottomLeftV.x; row < (int)bottomRightV.x; row++)
         {
-            Vector3 wallPosition = new Vector3(row, 0, bottomLeftV.z);
+            Vector3 wallPosition = new Vector3(row, 0, bottomLeftV.z); // Set wall / torch positions based on the floor mesh.
 
             if (row == (int)bottomLeftV.x + (increment * index))
             {
@@ -306,6 +335,7 @@ public class DungeonCreator : MonoBehaviour
             hasTorch = false;
         }
 
+        // Repeat process for each side of all floors.
         myTorchFrequency = torchFrequency;
         wallLength = (int)topRightV.x - (int)topLeftV.x;
         while (wallLength > roomWidthMin)
@@ -391,42 +421,28 @@ public class DungeonCreator : MonoBehaviour
             AddWallPositionToList(wallPosition, possibleWallVerticalPosition, possibleDoorVerticalPosition, hasTorch, possibleTorchVerticalPosition, false);
 
             hasTorch = false;
-
-            //Vector3 torchPosition = new Vector3(bottomRightV.x, ceilingHeight - 1, col + 0.5f);
-            //Instantiate(testCube, torchPosition, Quaternion.identity);
         }
-
-        /*possibleWallHorizontalPosition = possibleWallHorizontalPosition.Distinct().ToList();
-        List<Vector3Int> horizontalDoors = possibleWallHorizontalPosition.Intersect(possibleDoorHorizontalPosition).ToList();
-        possibleWallHorizontalPosition.RemoveAll(x => horizontalDoors.Contains(x));
-
-        possibleWallVerticalPosition = possibleWallVerticalPosition.Distinct().ToList();
-        List<Vector3Int> verticalDoors = possibleWallVerticalPosition.Intersect(possibleDoorVerticalPosition).ToList();
-        possibleWallVerticalPosition.RemoveAll(x => verticalDoors.Contains(x));*/
     }
-
+    /// <summary>
+    /// Adds position to list of walls to see if there's overlap anywhere, includes torches.
+    /// </summary>
+    /// <param name="wallStart">Start point of the new wall.</param>
+    /// <param name="wallList">List that holds this specific orientation of walls.</param>
+    /// <param name="flipList">List of points with walls and torches that need to be flipped.</param>
+    /// <param name="hasTorch">Does this torch have a wall?</param>
+    /// <param name="torchList">List of torch points.</param>
+    /// <param name="horizontal">Horizontal or vertical wall?</param>
     private void AddWallPositionToList(Vector3 wallStart, List<Vector3Int> wallList, List<Vector3Int> flipList, bool hasTorch, List<Vector3Int> torchList, bool horizontal)
     {
         Vector3Int point = Vector3Int.CeilToInt(new Vector3(wallStart.x, 0, wallStart.z));
 
-        if (wallList.Contains(point))
+        if (wallList.Contains(point)) // If point is already in list, this is a doorway.
         {
             wallList.Remove(point);
-            //doorList.Add(new Vector3Int(point.x, 1, point.z));
-            //wallList.Remove(new Vector3Int(point.x, 1, point.z));
             if (torchList.Contains(point))
                 torchList.Remove(point);
         }
-        /*else if (wallList.Contains(new Vector3Int(point.x, 1, point.z)))
-        {
-            //doorList.Add(point);
-            //wallList.Remove(point);
-            doorList.Add(new Vector3Int(point.x, 1, point.z));
-            wallList.Remove(new Vector3Int(point.x, 1, point.z));
-            if (torchList.Contains(torchPoint))
-                torchList.Remove(torchPoint);
-        }*/
-        else
+        else // If it's a new point, place wall and torch if needed.
         {
             wallList.Add(point);
             if (wallStart.y == 1)
@@ -437,7 +453,9 @@ public class DungeonCreator : MonoBehaviour
                 torchList.Add(point);
         }
     }
-
+    /// <summary>
+    /// Reset the scene for a new dungeon.
+    /// </summary>
     private void DestroyAllChildren()
     {
         if (GameObject.FindGameObjectWithTag("Player") != null)
