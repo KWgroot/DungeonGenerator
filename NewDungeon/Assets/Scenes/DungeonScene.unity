@@ -171,7 +171,7 @@ MonoBehaviour:
   dungeonLength: 100
   roomWidthMin: 10
   roomLengthMin: 10
-  maxIterations: 50
+  maxIterations: 40
   corridorWidth: 4
   ceilingHeight: 4
   roomMat: {fileID: 2100000, guid: 680474eb0c8601f43bc13bfe99b0849d, type: 2}
@@ -181,7 +181,7 @@ MonoBehaviour:
   roomBottomCornerModifier: 0.1
   roomTopCornerMidifier: 0.9
   roomOffset: 1
-  amountOfDrawRooms: 10
+  amountOfDrawRooms: 4
   torchFrequency: 2
   player: {fileID: 1463823070280023393, guid: 6a8a0a8e65c3e0a42aa427086a582a25, type: 3}
   wallVertical: {fileID: 4274494962566119954, guid: 0798d4d4a9bba5e46971b8693a58563b, type: 3}
@@ -597,7 +597,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 95d1c75e02180354ba3aa0f00bda959c, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.3
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 1
   Mute: 0

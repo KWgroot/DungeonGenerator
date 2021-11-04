@@ -24,6 +24,16 @@ public class HandleInteraction : MonoBehaviour
         dungeonVariables = GameObject.FindGameObjectWithTag("Dungeon Creator").GetComponent<DungeonCreator>(); // Variables to size me.
         text = GameObject.FindGameObjectWithTag("UIText").GetComponent<TextMeshProUGUI>(); // Text to show you can draw here.
         transform.GetChild(2).transform.localScale = new Vector3(1, 3, dungeonVariables.corridorWidth); // Scale me based on the dungeon sizes.
+        // move by 0.5 depending on orientation due to int calculation not fitting with uneven sized corridors.
+        if (dungeonVariables.corridorWidth % 2 == 1)
+            if (!vertical)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + 0.5f);
+            }
+            else
+            {
+                transform.position = new Vector3(transform.position.x + 0.5f, transform.position.y, transform.position.z);
+            }
     }
 
     // Update is called once per frame
@@ -52,34 +62,34 @@ public class HandleInteraction : MonoBehaviour
                     {
                         if ((hit.point.x - previousPoint.x) < 0) // right to left
                         {
-                            bottomLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                            bottomRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
-                            topLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                            topRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                            bottomLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + (float)dungeonVariables.corridorWidth / 2f);
+                            bottomRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - (float)dungeonVariables.corridorWidth / 2f);
+                            topLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + (float)dungeonVariables.corridorWidth / 2f);
+                            topRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - (float)dungeonVariables.corridorWidth / 2f);
                         }
                         else // left to right
                         {
-                            bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                            bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - dungeonVariables.corridorWidth / 2);
-                            topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + dungeonVariables.corridorWidth / 2);
-                            topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - dungeonVariables.corridorWidth / 2);
+                            bottomLeftV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z + (float)dungeonVariables.corridorWidth / 2f);
+                            bottomRightV = new Vector3(previousPoint.x, previousPoint.y, transform.position.z - (float)dungeonVariables.corridorWidth / 2f);
+                            topLeftV = new Vector3(hit.point.x, hit.point.y, transform.position.z + (float)dungeonVariables.corridorWidth / 2f);
+                            topRightV = new Vector3(hit.point.x, hit.point.y, transform.position.z - (float)dungeonVariables.corridorWidth / 2f);
                         }
                     }
                     else
                     {
                         if ((hit.point.z - previousPoint.z) < 0) // right to left
                         {
-                            bottomLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
-                            bottomRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
-                            topLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
-                            topRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
+                            bottomLeftV = new Vector3(transform.position.x + (float)dungeonVariables.corridorWidth / 2f, previousPoint.y, previousPoint.z);
+                            bottomRightV = new Vector3(transform.position.x - (float)dungeonVariables.corridorWidth / 2f, previousPoint.y, previousPoint.z);
+                            topLeftV = new Vector3(transform.position.x + (float)dungeonVariables.corridorWidth / 2f, hit.point.y, hit.point.z);
+                            topRightV = new Vector3(transform.position.x - (float)dungeonVariables.corridorWidth / 2f, hit.point.y, hit.point.z);
                         }
                         else // left to right
                         {
-                            bottomLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
-                            bottomRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, hit.point.y, hit.point.z);
-                            topLeftV = new Vector3(transform.position.x + dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
-                            topRightV = new Vector3(transform.position.x - dungeonVariables.corridorWidth / 2, previousPoint.y, previousPoint.z);
+                            bottomLeftV = new Vector3(transform.position.x + (float)dungeonVariables.corridorWidth / 2f, hit.point.y, hit.point.z);
+                            bottomRightV = new Vector3(transform.position.x - (float)dungeonVariables.corridorWidth / 2f, hit.point.y, hit.point.z);
+                            topLeftV = new Vector3(transform.position.x + (float)dungeonVariables.corridorWidth / 2f, previousPoint.y, previousPoint.z);
+                            topRightV = new Vector3(transform.position.x - (float)dungeonVariables.corridorWidth / 2f, previousPoint.y, previousPoint.z);
                         }
                     }
                     // Start creating a mesh for the segment drawn.
@@ -201,9 +211,13 @@ public class HandleInteraction : MonoBehaviour
         bridge.transform.position = position;
         bridge.transform.localScale = Vector3.one;
         if (!vertical)
+        {
             bridge.transform.localScale = new Vector3(bridge.transform.localScale.x / bridge.transform.parent.localScale.x, 1, 1);
+        }
         else
+        {
             bridge.transform.localScale = new Vector3(1, 1, bridge.transform.localScale.x / bridge.transform.parent.localScale.x);
+        }
         bridge.AddComponent<MeshCollider>();
         bridge.GetComponent<MeshFilter>().mesh.RecalculateNormals();
     }
