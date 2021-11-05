@@ -8,6 +8,8 @@ TagManager:
   - UIText
   - Directional Light
   - CinemachineTarget
+  - FadeTag
+  - Stairs
   layers:
   - Default
   - TransparentFX

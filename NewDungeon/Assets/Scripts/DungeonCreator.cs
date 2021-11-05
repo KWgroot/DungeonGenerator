@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DungeonCreator : MonoBehaviour
 {
@@ -29,6 +30,17 @@ public class DungeonCreator : MonoBehaviour
     private GameObject floorParent, ceilingParent, torchParent, stairParent;
     private int torchIndex = 1;
 
+    [HideInInspector]
+    public static DungeonCreator current;
+    [HideInInspector]
+    public float progress;
+    public Image fadeImage;
+
+    private void Awake()
+    {
+        current = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,9 +49,15 @@ public class DungeonCreator : MonoBehaviour
     /// <summary>
     /// The manager of creating any new dungeon from the variables set in the generator.
     /// </summary>
-    public void CreateDungeon()
+    public void CreateDungeon(bool fadeIn = false)
     {
         DestroyAllChildren(); // Reset dungeon
+
+        if (fadeIn)
+        {
+            StartCoroutine(FadeIn());
+        }
+
         DungeonGenerator generator = new DungeonGenerator(dungeonWidth, dungeonLength);
         List<Node> listOfRooms = generator.CalculateDungeon(maxIterations, roomWidthMin, roomLengthMin, roomBottomCornerModifier,
             roomTopCornerMidifier, roomOffset, corridorWidth);
@@ -100,19 +118,35 @@ public class DungeonCreator : MonoBehaviour
             }
             else
                 CreateMesh(listOfRooms[i].BottomLeftAreaCorner, listOfRooms[i].TopRightAreaCorner, roomMat); // Just create room (floor)
+
+            progress = (((float)listOfRooms.Count / ((float)listOfRooms.Count - (float)i)) / 100f);
         }
 
         CreateWalls(wallParent);
+        progress = 0.80f;
 
         // combine floor
         CombineWallMeshes(floorParent, true);
+        progress = 0.95f;
 
         // combine ceiling
         CombineWallMeshes(ceilingParent, true);
+        progress = 0.975f;
 
         // combine wall meshes
         CombineWallMeshes(wallParent);
+        progress = 1f;
     }
+
+    private IEnumerator FadeIn()
+    {
+        for (float i = 1; i >= 0; i -= Time.deltaTime)
+        {
+            fadeImage.color = new Color(1, 1, 1, i);
+            yield return null;
+        }
+    }
+
     /// <summary>
     /// Combines all meshes from a parent object into a single mesh on the parent
     /// </summary>
@@ -298,8 +332,11 @@ public class DungeonCreator : MonoBehaviour
         {
             for (int i = 0; i <= (ceilingHeight / 3); i++)
             {
-                Instantiate(stairs, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, i * 3,
+                GameObject staircase = Instantiate(stairs, new Vector3(bottomLeftCorner.x + (topRightCorner.x - bottomLeftCorner.x) / 2, i * 3,
                 bottomLeftCorner.y + (topRightCorner.y - bottomLeftCorner.y) / 2), Quaternion.identity, stairParent.transform);
+
+                if (!((i + 1) <= (ceilingHeight / 3)))
+                    staircase.GetComponent<BoxCollider>().enabled = true;
             }
         }
 
