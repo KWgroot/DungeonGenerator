@@ -167,11 +167,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf17b6f5de8ddbe42b918efb8875137d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dungeonWidth: 100
-  dungeonLength: 100
-  roomWidthMin: 10
-  roomLengthMin: 10
-  maxIterations: 40
+  dungeonWidth: 150
+  dungeonLength: 150
+  roomWidthMin: 15
+  roomLengthMin: 15
+  maxIterations: 60
   corridorWidth: 4
   ceilingHeight: 4
   roomMat: {fileID: 2100000, guid: 680474eb0c8601f43bc13bfe99b0849d, type: 2}
@@ -181,7 +181,7 @@ MonoBehaviour:
   roomBottomCornerModifier: 0.1
   roomTopCornerMidifier: 0.9
   roomOffset: 1
-  amountOfDrawRooms: 4
+  amountOfDrawRooms: 8
   torchFrequency: 2
   player: {fileID: 1463823070280023393, guid: 6a8a0a8e65c3e0a42aa427086a582a25, type: 3}
   wallVertical: {fileID: 4274494962566119954, guid: 0798d4d4a9bba5e46971b8693a58563b, type: 3}

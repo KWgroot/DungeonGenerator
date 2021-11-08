@@ -309,6 +309,7 @@ public class DungeonCreator : MonoBehaviour
             dungeonFloor.GetComponent<MeshFilter>().mesh = mesh;
             dungeonFloor.GetComponent<MeshRenderer>().material = myMat;
             dungeonFloor.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            dungeonFloor.AddComponent<BoxCollider>();
             dungeonFloor.transform.parent = floorParent.transform;
             dungeonFloor.layer = 3;
             dungeonFloor.GetComponent<MeshFilter>().mesh.RecalculateNormals();
@@ -320,6 +321,7 @@ public class DungeonCreator : MonoBehaviour
         dungeonCeiling.GetComponent<MeshFilter>().mesh.triangles = dungeonCeiling.GetComponent<MeshFilter>().mesh.triangles.Reverse().ToArray();
         dungeonCeiling.GetComponent<MeshRenderer>().material = roomMat;
         dungeonCeiling.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        dungeonCeiling.AddComponent<BoxCollider>();
         dungeonCeiling.transform.parent = ceilingParent.transform;
         dungeonCeiling.transform.Translate(0f, ceilingHeight, 0f);
         dungeonCeiling.GetComponent<MeshFilter>().mesh.RecalculateNormals();
@@ -505,5 +507,7 @@ public class DungeonCreator : MonoBehaviour
                 DestroyImmediate(item.gameObject);
             }
         }
+
+        torchIndex = 1;
     }
 }
